@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生情報管理システム</title>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <h3>学生情報管理システムへようこそ！</h3>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+                <a th:text="${session.user.getUsername()}"></a>同学：欢迎登录学生管理系统<a href="/logout">退出？</a><br>
+                <a href="/student/myGrades">我的成绩</a><br>
+                <a href="/student/myInfo">学生查看/修改信息</a>
+            <br>
+        </div>
+        <div class="col-md-6 column">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>
+                        标题
+                    </th>
+                    <th>
+                        发布部门
+                    </th>
+                    <th>
+                        发布时间
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        暂时没有新的公告
+                    </td>
+                    <td>
+                        暂时没有新的公告
+                    </td>
+                    <td>
+                        暂时没有新的公告
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

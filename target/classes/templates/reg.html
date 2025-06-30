@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>教务注册激活</title>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <h3>教务注册激活</h3>
+            <form role="form" method="post" action="/register">
+                <div class="form-group">
+                    <label>用户名</label><input required type="text" name="username" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">请输入密码：</label><input required type="password"
+                                                                            class="form-control"
+                                                                            name="password"
+                                                                            id="exampleInputPassword1"/>
+                    <label for="exampleInputPassword1">重新输入密码：</label><input required type="password"
+                                                                             class="form-control"
+                                                                             name="password1"
+                                                                             id="exampleInputPassword2"/>
+                </div>
+                <div class="form-group">
+                    <label>姓名：</label><input required type="text" name="name" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label>身份：</label>
+                    <label><input type="radio" checked name="roleId" value="1"/>学生</label>
+                    <label><input type="radio" name="roleId" value="2"/>教师</label>
+                </div>
+                <div class="form-group">
+                    <label>学号/工号：</label><input required type="text" name="schNumber" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label>班级/部门：</label><input required type="text" name="schDepartment" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label>邮箱：</label><input required type="email" name="mail" class="form-control"/>
+                </div>
+                <a th:text="${info}"></a>
+
+                <button type="submit" class="btn btn-default">注册</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
