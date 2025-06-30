@@ -2,76 +2,63 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>查询所有学生成绩</title>
-    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/apple-style.css">
 </head>
 <body>
+<div class="header">
+    <div class="container">
+        <div class="nav">
+            <a href="#" class="nav-brand">学生成绩管理系统</a>
+        </div>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <h3>
-                学生成绩管理系统
-            </h3>
+    <div class="row">
+        <h3>学生成绩管理</h3>
+    </div>
+    <div class="row" style="display: flex; flex-wrap: wrap; margin: 0 -12px;">
+        <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
+            <div class="card">
+                <h3 style="margin-top: 0; font-size: 22px;">查询条件</h3>
+                <form role="form" action="/teacher/oneGrade">
+                    <div class="form-group">
+                        <label>学号</label>
+                        <input type="text" name="schNumber" required class="form-control" placeholder="请输入学生学号"/>
+                    </div>
+                    <div class="form-group" style="margin-top: 24px;">
+                        <button type="submit" class="btn btn-primary">查询</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
+            <div class="card">
+                <h3 style="margin-top: 0; font-size: 22px;">系统公告</h3>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th>发布部门</th>
+                        <th>发布时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>暂时没有新的公告</td>
+                        <td>暂时没有新的公告</td>
+                        <td>暂时没有新的公告</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="row clearfix">
-        <div class="col-md-6 column">
-            <h3>
-               查询条件
-            </h3>
-            <form class="form-horizontal" role="form" action="/teacher/oneGrade">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">学号</label>
-                    <div class="col-sm-10">
-                        <input type="text" name="schNumber" required class="form-control"/>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-default">查询</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6 column">
-            <h3>
-               系统公告
-            </h3>
-            <table class="table table-condensed">
-                <thead>
-                <tr>
-                    <th>
-                        标题
-                    </th>
-                    <th>
-                        发布部门
-                    </th>
-                    <th>
-                        发布时间
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        暂时没有新的公告
-                    </td>
-                    <td>
-                        暂时没有新的公告
-                    </td>
-                    <td>
-                        暂时没有新的公告
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <h3>
-               查询结果
-            </h3>
+    <div class="row">
+        <div class="card">
+            <h3 style="margin-top: 0; font-size: 22px;">查询结果</h3>
             <table class="table">
                 <thead>
                 <tr>
@@ -92,7 +79,9 @@
                     <td th:text="${grade.getEnglish()}"></td>
                     <td th:text="((${grade.getChinese()}+${grade.getEnglish()}+${grade.getMath()})/3)"></td>
                     <td th:text="${grade.getTestNo()}"></td>
-                    <td><a th:href="@{/teacher/updateGrade(id=${grade.getId()})}">修改</a> </td>
+                    <td>
+                        <a th:href="@{/teacher/updateGrade(id=${grade.getId()})}" style="color: var(--apple-blue); text-decoration: none;">修改</a>
+                    </td>
                 </tr>
                 </tbody>
             </table>

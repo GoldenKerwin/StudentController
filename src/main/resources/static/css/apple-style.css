@@ -1,0 +1,236 @@
+/* Apple-inspired CSS for Student Controller System */
+:root {
+  --apple-gray: #f5f5f7;
+  --apple-dark: #1d1d1f;
+  --apple-blue: #0071e3;
+  --apple-blue-hover: #0077ed;
+  --apple-light-text: #86868b;
+  --apple-border: #d2d2d7;
+  --apple-success: #4cd964;
+  --apple-error: #ff3b30;
+  --apple-radius: 8px;
+  --apple-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #fff;
+  color: var(--apple-dark);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+/* Form styling */
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--apple-dark);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
+  background-color: #fff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+}
+
+/* Button styling */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  border-radius: var(--apple-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  margin-right: 12px;
+}
+
+.btn-primary {
+  background-color: var(--apple-blue);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--apple-blue-hover);
+}
+
+.btn-default {
+  background-color: #e8e8ed;
+  color: var(--apple-dark);
+}
+
+.btn-default:hover {
+  background-color: #d8d8df;
+}
+
+/* Table styling */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 24px;
+  box-shadow: var(--apple-shadow);
+  border-radius: var(--apple-radius);
+  overflow: hidden;
+}
+
+.table th {
+  background-color: var(--apple-gray);
+  padding: 16px;
+  text-align: left;
+  font-weight: 500;
+  color: var(--apple-dark);
+  border-bottom: 1px solid var(--apple-border);
+}
+
+.table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--apple-border);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Header and navigation */
+.header {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--apple-border);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--apple-dark);
+  text-decoration: none;
+}
+
+/* Card styling */
+.card {
+  background-color: #fff;
+  border-radius: var(--apple-radius);
+  box-shadow: var(--apple-shadow);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Radio and checkbox styling */
+input[type="radio"],
+input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Alert messages */
+.alert {
+  padding: 16px;
+  border-radius: var(--apple-radius);
+  margin-bottom: 24px;
+}
+
+.alert-success {
+  background-color: rgba(76, 217, 100, 0.1);
+  color: var(--apple-success);
+  border: 1px solid var(--apple-success);
+}
+
+.alert-error {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: var(--apple-error);
+  border: 1px solid var(--apple-error);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+  }
+  
+  h3 {
+    font-size: 24px;
+  }
+  
+  .form-control, .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .table th, .table td {
+    padding: 12px;
+  }
+}
+
+/* Custom radio button styling */
+.radio-container {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 24px;
+}
+
+.mb-4 {
+  margin-bottom: 24px;
+} 

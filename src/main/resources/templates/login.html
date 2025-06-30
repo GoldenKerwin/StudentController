@@ -2,22 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录</title>
-    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/apple-style.css">
 </head>
 <body>
 <div class="container">
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <h3>用户登录</h3>
+    <div class="row text-center">
+        <h3>学生信息管理系统</h3>
+        <p style="color: var(--apple-light-text); margin-bottom: 40px;">请登录您的账户以继续</p>
+    </div>
+    <div class="row">
+        <div class="card" style="max-width: 480px; margin: 0 auto;">
+            <h3 style="margin-top: 0;">用户登录</h3>
             <form role="form" method="post" action="/login">
                 <div class="form-group">
-                    <label>用户名：</label><input type="text" class="form-control" name="username" />
+                    <label>用户名</label>
+                    <input type="text" class="form-control" name="username" placeholder="请输入您的用户名" />
                 </div>
                 <div class="form-group">
-                    <label for="exampleInputPassword1">密码：</label><input type="password" class="form-control" name="password" id="exampleInputPassword1" />
-                </div> <button type="submit" class="btn btn-default">登录</button>
-                <a href="/reg"><button type="button" class="btn btn-default">注册激活</button></a>
+                    <label for="exampleInputPassword1">密码</label>
+                    <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="请输入您的密码" />
+                </div>
+                <div class="form-group" style="display: flex; margin-top: 32px;">
+                    <button type="submit" class="btn btn-primary">登录</button>
+                    <a href="/reg" style="text-decoration: none;"><button type="button" class="btn btn-default">注册激活</button></a>
+                </div>
             </form>
         </div>
     </div>

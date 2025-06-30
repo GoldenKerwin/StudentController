@@ -2,32 +2,48 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>录入成绩</title>
-    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/apple-style.css">
 </head>
 <body>
+<div class="header">
+    <div class="container">
+        <div class="nav">
+            <a href="#" class="nav-brand">学生成绩管理系统</a>
+        </div>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row clearfix">
-        <div class="col-md-12 column">
+    <div class="row text-center">
+        <h3>录入学生成绩</h3>
+        <p style="color: var(--apple-light-text); margin-bottom: 40px;">请填写以下信息录入学生成绩</p>
+    </div>
+    <div class="row">
+        <div class="card" style="max-width: 580px; margin: 0 auto;">
             <form role="form" action="/teacher/addGrade">
                 <div class="form-group">
                     <label>学生学号</label>
-                    <select name="schNumber" >
+                    <select name="schNumber" class="form-control">
                         <option th:each="list:${schList}" th:text="${list.getSchNumber()}"></option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>语文成绩</label><input type="text" name="chinese" class="form-control" />
+                    <label>语文成绩</label>
+                    <input type="text" name="chinese" class="form-control" placeholder="请输入语文成绩" />
                 </div>
                 <div class="form-group">
-                    <label>数学成绩</label><input type="text" name="math" class="form-control" />
+                    <label>数学成绩</label>
+                    <input type="text" name="math" class="form-control" placeholder="请输入数学成绩" />
                 </div>
                 <div class="form-group">
-                    <label>英语成绩</label><input type="text" name="english" class="form-control" />
+                    <label>英语成绩</label>
+                    <input type="text" name="english" class="form-control" placeholder="请输入英语成绩" />
                 </div>
                 <div class="form-group">
                     <label>考试批次</label>
-                    <select name="testNo">
+                    <select name="testNo" class="form-control">
                         <option value="2019下01">2019下01</option>
                         <option value="2019下02">2019下02</option>
                         <option value="2019下03">2019下03</option>
@@ -37,7 +53,9 @@
                     </select>
                 </div>
                 <input th:value="${session.user.getUsername()}" hidden name="operator">
-                <button type="submit" class="btn btn-default">提交</button>
+                <div class="form-group" style="margin-top: 32px;">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
             </form>
         </div>
     </div>

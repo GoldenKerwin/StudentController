@@ -2,19 +2,43 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>操作错误</title>
-    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/apple-style.css">
+    <style>
+        .error-icon {
+            width: 64px;
+            height: 64px;
+            background-color: var(--apple-error);
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <div class="alert alert-dismissable alert-danger">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                <h4>
-                    注意!你没有操作权限或查询失败！
-                </h4>  当你看到这个页面说明出错啦！<a href="/index" class="alert-link">alert link</a>
-            </div>
+    <div class="error-container">
+        <div class="error-icon">!</div>
+        <h3>操作错误</h3>
+        <p style="color: var(--apple-light-text); margin-bottom: 16px;">您没有操作权限或查询失败</p>
+        <div class="alert alert-error">
+            <strong>注意!</strong> 当您看到这个页面说明出错了
+        </div>
+        <div style="margin-top: 24px;">
+            <a href="/index" class="btn btn-primary">返回首页</a>
         </div>
     </div>
 </div>
