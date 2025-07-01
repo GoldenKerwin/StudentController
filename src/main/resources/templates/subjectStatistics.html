@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>科目成绩统计</title>
+    <link rel="stylesheet" th:href="@{/css/apple-style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <h1>全校科目成绩统计分析</h1>
+    
+    <div class="statistics-card">
+        <h2>科目成绩总览</h2>
+        <table border="1">
+            <tr>
+                <th>科目</th>
+                <th>平均分</th>
+                <th>最高分</th>
+                <th>最低分</th>
+                <th>考试人数</th>
+                <th>及格率</th>
+            </tr>
+            <tr th:each="subject : ${subjectStats}">
+                <td th:text="${subject.subject}"></td>
+                <td th:text="${subject.average}"></td>
+                <td th:text="${subject.max}"></td>
+                <td th:text="${subject.min}"></td>
+                <td th:text="${subject.count}"></td>
+                <td th:text="${subject.passRate + '%'}"></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
+        <canvas id="averagesChart"></canvas>
+    </div>
+    
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
+        <canvas id="passRatesChart"></canvas>
+    </div>
+    
+    <div class="button-container">
+        <a th:href="@{/grade/findAll}" class="button">返回成绩列表</a>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // 获取科目统计数据
+        var subjectStats = /*[[${subjectStats}]]*/ [];
+        
+        // 准备图表数据
+        var subjects = [];
+        var averages = [];
+        var passRates = [];
+        var maxScores = [];
+        var minScores = [];
+        
+        for (var i = 0; i < subjectStats.length; i++) {
+            subjects.push(subjectStats[i].subject);
+            averages.push(subjectStats[i].average);
+            passRates.push(subjectStats[i].passRate);
+            maxScores.push(subjectStats[i].max);
+            minScores.push(subjectStats[i].min);
+        }
+        
+        // 创建平均分图表
+        var avgCtx = document.getElementById('averagesChart').getContext('2d');
+        var avgChart = new Chart(avgCtx, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [
+                    {
+                        label: '平均分',
+                        data: averages,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '最高分',
+                        data: maxScores,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '最低分',
+                        data: minScores,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '各科目成绩对比'
+                    }
+                }
+            }
+        });
+        
+        // 创建及格率图表
+        var passCtx = document.getElementById('passRatesChart').getContext('2d');
+        var passChart = new Chart(passCtx, {
+            type: 'pie',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: '及格率',
+                    data: passRates,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(199, 199, 199, 0.6)',
+                        'rgba(83, 102, 255, 0.6)',
+                        'rgba(40, 159, 64, 0.6)',
+                        'rgba(210, 199, 199, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(199, 199, 199, 1)',
+                        'rgba(83, 102, 255, 1)',
+                        'rgba(40, 159, 64, 1)',
+                        'rgba(210, 199, 199, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '各科目及格率对比'
+                    },
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html> 

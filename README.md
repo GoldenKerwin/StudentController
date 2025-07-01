@@ -1,142 +1,114 @@
 # 学生信息管理系统
 
-这是一个基于 Spring Boot + Shiro + MyBatis-Plus + Thymeleaf 实现的简单的学生信息管理系统。系统分为学生和教师两种角色，提供针对不同角色的信息管理和成绩管理功能。
+## 1. 项目简介
 
-## 技术栈
+本项目是一个基于 Spring Boot + MyBatis + Shiro + Thymeleaf 的学生信息管理系统。系统旨在为学校教学管理提供便利，实现了对学生信息、成绩、考勤的全面管理。系统区分了学生、教师、管理员等多种角色，并为不同角色分配了相应权限。
 
-- **核心框架**: Spring Boot 2.1.9.RELEASE
-- **安全框架**: Apache Shiro 1.4.0
-- **持久层框架**: MyBatis-Plus 3.0.7.1
-- **数据库**: MySQL 8.0
-- **模板引擎**: Thymeleaf
-- **开发工具**: Lombok, Maven
+## 2. 功能模块
 
-## 功能模块
+系统主要包含以下功能模块：
 
-系统包含两种角色：**学生** 和 **教师**。
+-   **用户管理模块**
+    -   用户登录、登出功能。
+    -   支持学生、教师、管理员、辅导员等多种角色。
+    -   基于角色的权限控制（RBAC），不同角色拥有不同的操作权限。
 
-### 通用功能
-- **用户注册**: 提供统一的注册页面。
-- **用户登录/登出**: 使用 Shiro 进行认证和会话管理。
-- **权限控制**: 基于角色的访问控制，不同角色访问不同的功能页面。
+-   **学生信息管理模块**
+    -   **教师/管理员**：
+        -   添加、删除、修改、查询学生基本信息。
+    -   **学生**：
+        -   查看和修改个人信息。
 
-### 学生模块 (`角色ID: 1`)
-- **个人信息管理**:
-    - 首次登录时，若无个人信息，系统会引导至信息添加页面。
-    - 学生可以查看、添加和更新自己的个人基本信息（如学号、姓名、班级等）。
-- **个人成绩查询**:
-    - 学生可以查看自己所有科目的成绩列表。
+-   **成绩管理模块**
+    -   **教师/管理员**：
+        -   录入、修改、删除学生各科成绩。
+        -   查看所有学生的成绩列表。
+        -   按班级、科目进行成绩统计与分析。
+    -   **学生**：
+        -   查询个人所有科目成绩。
 
-### 教师模块 (`角色ID: 2`)
-- **学生信息管理**:
-    - 教师可以查看所有学生的个人信息列表。
-    - 教师可以通过学号搜索指定的学生信息。
-- **学生成绩管理**:
-    - 教师可以查看所有学生的成绩信息。
-    - 教师可以通过学号查询指定学生的成绩。
-    - 教师可以为学生录入新的成绩。
-    - 教师可以修改已存在的学生成绩记录。
+-   **考勤管理模块**
+    -   **教师/管理员**：
+        -   记录学生考勤情况（正常、迟到、早退、缺席、请假）。
+        -   按班级、按日期查询和统计考勤记录。
+    -   **学生**：
+        -   查看个人考勤记录。
 
-## 如何运行
+## 3. 技术栈
 
-### 1. 环境准备
-- Java Development Kit (JDK) 1.8+
-- Apache Maven 3.5+
-- MySQL 5.7+
+-   **核心框架**：Spring Boot 2.1.9.RELEASE
+-   **安全框架**：Apache Shiro
+-   **持久层框架**：MyBatis-Plus
+-   **数据库**：MySQL 8.0
+-   **模板引擎**：Thymeleaf
+-   **API文档**：Swagger2
+-   **构建工具**：Maven
+-   **开发工具**：Lombok, Commons Lang3
 
-### 2. 数据库配置
-1.  在本地 MySQL 中创建一个新的数据库，名称为 `student_controller`。
-    ```sql
-    CREATE DATABASE student_controller;
-    ```
-2.  进入该数据库，并执行项目根目录中的 `db_create.sql` 脚本来创建所需的表和初始数据。
+## 4. 快速开始
 
-    **用户表 (`user`)**
-    ```sql
-    CREATE TABLE `user` (
-      `id` int(11) NOT NULL AUTO_INCREMENT,
-      `username` varchar(255) DEFAULT NULL COMMENT '用户名',
-      `password` varchar(255) DEFAULT NULL COMMENT '加密后的密码',
-      `salt` varchar(255) DEFAULT NULL COMMENT '密码盐',
-      `name` varchar(255) DEFAULT NULL COMMENT '真实姓名',
-      `sch_number` varchar(255) DEFAULT NULL COMMENT '学号/工号',
-      `mail` varchar(255) DEFAULT NULL COMMENT '邮箱',
-      `creat_time` datetime DEFAULT NULL COMMENT '创建时间',
-      `last_time` datetime DEFAULT NULL COMMENT '上次登录时间',
-      `role_id` int(11) DEFAULT 1 COMMENT '角色ID (1:学生, 2:教师)',
-      `sch_department` varchar(255) DEFAULT NULL COMMENT '班级/部门',
-      `login_count` int(11) DEFAULT 0 COMMENT '登录次数',
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    ```
-    **学生信息表 (`stu_info`)**
-    ```sql
-    CREATE TABLE `stu_info` (
-      `id` int(11) NOT NULL AUTO_INCREMENT,
-      `sch_number` varchar(255) DEFAULT NULL COMMENT '学号',
-      `name` varchar(255) DEFAULT NULL COMMENT '姓名',
-      `class_name` varchar(255) DEFAULT NULL COMMENT '班级',
-      `sex` varchar(255) DEFAULT NULL COMMENT '性别',
-      `address` varchar(255) DEFAULT NULL COMMENT '地址',
-      `father_name` varchar(255) DEFAULT NULL COMMENT '父亲姓名',
-      `father_phone` varchar(255) DEFAULT NULL COMMENT '父亲电话',
-      `mather_name` varchar(255) DEFAULT NULL COMMENT '母亲姓名',
-      `mather_phone` varchar(255) DEFAULT NULL COMMENT '母亲电话',
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    ```
-    **成绩表 (`grade`)**
-    ```sql
-    CREATE TABLE `grade` (
-      `id` int(11) NOT NULL AUTO_INCREMENT,
-      `sch_number` varchar(255) DEFAULT NULL COMMENT '学号',
-      `sub_name` varchar(255) DEFAULT NULL COMMENT '科目名称',
-      `results` double DEFAULT NULL COMMENT '成绩',
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    ```
+### 4.1 环境准备
 
-### 3. 应用配置
-修改 `src/main/resources/application.yml` 文件，更新数据库连接信息。
-```yaml
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/student_controller?serverTimezone=UTC
-    username: YOUR_MYSQL_USERNAME  # 修改为你的数据库用户名
-    password: YOUR_MYSQL_PASSWORD  # 修改为你的数据库密码
-```
+-   Java 8
+-   Maven 3.x
+-   MySQL 5.7+
 
-### 4. 启动应用
-1.  克隆项目到本地:
+### 4.2 步骤
+
+1.  **克隆项目到本地**
     ```bash
     git clone https://github.com/GoldenKerwin/StudentController.git
+    cd student_controller
     ```
-2.  使用 Maven 启动项目:
+
+2.  **创建数据库**
+    -   启动你的 MySQL 服务。
+    -   创建一个名为 `student_controller` 的数据库。
+    -   执行项目根目录下的 `db_create.sql` 文件，它将创建所需的表并插入示例数据。
+      ```sql
+      -- 使用 MySQL 客户端执行
+      source /path/to/your/project/db_create.sql;
+      ```
+
+3.  **修改配置**
+    -   打开 `src/main/resources/application.yml` 文件。
+    -   根据你的本地环境，修改 `spring.datasource` 下的数据库连接信息，特别是 `username` 和 `password`。
+      ```yaml
+      spring:
+        datasource:
+          url: jdbc:mysql://localhost:3306/student_controller?serverTimezone=UTC
+          username: root       # 修改为你的数据库用户名
+          password: 123456   # 修改为你的数据库密码
+      ```
+
+4.  **启动项目**
+    -   在项目根目录下，使用 Maven 启动项目。
     ```bash
     mvn spring-boot:run
     ```
-    或者，你也可以在 IntelliJ IDEA 或 Eclipse 中直接运行 `StudentControllerApplication.java` 的 `main` 方法。
+    -   当看到 Spring Boot 的启动日志后，表示项目已成功启动。
 
-应用启动后，访问 `http://localhost:8080` 开始使用。
+5.  **访问系统**
+    -   打开浏览器，访问 `http://localhost:8080`。
+    -   你可以使用 `db_create.sql` 中预置的测试账号登录。
+        -   **教师账号**: `teacher1` / `123456`
+        -   **学生账号**: `student1` / `123456`
+        -   **管理员账号**: `admin` / `123456`
 
-- **注册页面**: `http://localhost:8080/reg`
-- **登录页面**: `http://localhost:8080/doLogin`
+## 5. API 文档
 
-## 项目结构
+项目集成了 Swagger2 用于生成 API 文档。项目成功启动后，你可以通过以下地址访问：
 
-```
-src/main/java/xyz/teikou/
-├── controller/       # 控制器层 (Controller)
-│   ├── SGradeController.java      # 学生-成绩相关
-│   ├── SStuInfoController.java    # 学生-信息相关
-│   ├── TGradeController.java      # 教师-成绩相关
-│   ├── TStuInfoController.java    # 教师-信息相关
-│   └── UserController.java        # 用户登录注册
-├── entity/           # 数据库实体类 (Entity)
-├── form/             # 表单数据对象 (Form)
-├── mapper/           # MyBatis-Plus Mapper 接口
-├── service/          # 业务逻辑层 (Service)
-│   └── Impl/         # 业务逻辑实现
-└── shiro/            # Shiro 安全配置
-``` 
+-   [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+## 6. 项目截图
+
+
+### 登录页
+![登录页](img/login.png)
+
+### 教师主页
+![教师主页](img/teach_index.png)
+
+### 学生主页
+![学生主页](img/stu_index.png) 

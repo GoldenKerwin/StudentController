@@ -18,4 +18,11 @@ public interface StuInfoService {
     public List<StuInfo> allInfo();
 
     public StuInfo theInfo(String schNumber);
+    
+    /**
+     * 根据班级查找学生
+     * @param className 班级名称
+     * @return 学生列表
+     */
+    public List<StuInfo> findStudentsByClass(String className);
 }

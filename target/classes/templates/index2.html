@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学生情報管理システム</title>
+    <title>学生信息管理系统</title>
     <link rel="stylesheet" href="/css/apple-style.css">
 </head>
 <body>
 <div class="header">
     <div class="container">
         <div class="nav">
-            <a href="#" class="nav-brand">学生情報管理システム</a>
+            <a href="#" class="nav-brand">学生信息管理系统</a>
             <div style="display: flex; align-items: center;">
                 <span style="margin-right: 16px;" th:text="${session.user.getUsername() + ' 老师'}"></span>
                 <a href="/logout" style="color: var(--apple-blue); text-decoration: none;">退出</a>
@@ -36,8 +36,20 @@
                         <span style="font-weight: 500;">全部成绩</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/stuInfo/allInfo" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
+                    <a href="/stuInfo/allInfo" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">全部信息</span>
+                        <span style="float: right; color: var(--apple-light-text);">→</span>
+                    </a>
+                    <a href="/attendance/record" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                        <span style="font-weight: 500;">考勤录入</span>
+                        <span style="float: right; color: var(--apple-light-text);">→</span>
+                    </a>
+                    <a href="/attendance/classAttendance" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                        <span style="font-weight: 500;">班级考勤统计</span>
+                        <span style="float: right; color: var(--apple-light-text);">→</span>
+                    </a>
+                    <a href="/attendance/dateAttendance" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
+                        <span style="font-weight: 500;">日期考勤查询</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
                 </div>

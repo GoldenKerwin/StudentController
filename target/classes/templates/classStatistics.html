@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>班级成绩统计</title>
+    <link rel="stylesheet" th:href="@{/css/apple-style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <h1>班级成绩统计分析</h1>
+    
+    <div class="search-form">
+        <form th:action="@{/grade/classStatistics}" method="get">
+            <label for="className">班级名称:</label>
+            <input type="text" id="className" name="className" th:value="${className}" required>
+            <button type="submit">查询</button>
+        </form>
+    </div>
+    
+    <div th:if="${className != null}" class="statistics-card">
+        <h2 th:text="${className + '班级成绩概况'}"></h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>总览</h3>
+                <p>学生人数: <span th:text="${statistics.studentCount}"></span></p>
+                <p>班级平均分: <span th:text="${statistics.classAverage}"></span></p>
+                <p>总体及格率: <span th:text="${statistics.passRate}"></span>%</p>
+            </div>
+            <div class="stat-item">
+                <h3>优秀学生</h3>
+                <p>成绩最好学生: <span th:text="${statistics.bestStudent}"></span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${className != null && statistics.subjects != null && !statistics.subjects.isEmpty()}" class="statistics-card">
+        <h2>各科目成绩分析</h2>
+        <table border="1">
+            <tr>
+                <th>科目</th>
+                <th>平均分</th>
+                <th>及格率</th>
+            </tr>
+            <tr th:each="subject : ${statistics.subjects}">
+                <td th:text="${subject.subject}"></td>
+                <td th:text="${subject.average}"></td>
+                <td th:text="${subject.passRate + '%'}"></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div th:if="${className != null && statistics.subjects != null && !statistics.subjects.isEmpty()}" class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
+        <canvas id="subjectsChart"></canvas>
+    </div>
+    
+    <div class="button-container">
+        <a th:href="@{/grade/findAll}" class="button">返回成绩列表</a>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // 获取科目统计数据
+        var subjects = /*[[${statistics != null ? statistics.subjects : []}]]*/ [];
+        
+        if (subjects && subjects.length > 0) {
+            // 准备图表数据
+            var subjectNames = [];
+            var averages = [];
+            var passRates = [];
+            
+            for (var i = 0; i < subjects.length; i++) {
+                subjectNames.push(subjects[i].subject);
+                averages.push(subjects[i].average);
+                passRates.push(subjects[i].passRate);
+            }
+            
+            // 创建图表
+            var ctx = document.getElementById('subjectsChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: subjectNames,
+                    datasets: [
+                        {
+                            label: '平均分',
+                            data: averages,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '及格率(%)',
+                            data: passRates,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '平均分'
+                            }
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            max: 100,
+                            type: 'linear',
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            title: {
+                                display: true,
+                                text: '及格率(%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '各科目成绩对比'
+                        }
+                    }
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+</body>
+</html> 

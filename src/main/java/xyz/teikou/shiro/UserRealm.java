@@ -1,59 +1,66 @@
 package xyz.teikou.shiro;
 
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import xyz.teikou.entity.User;
+import xyz.teikou.service.PermissionService;
 import xyz.teikou.service.UserService;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-/**
- * Creat by TeiKou
- * 2019/10/9 12:08
- */
+@Slf4j
+@Component // 标记为 Spring 组件，以便 Spring 扫描和管理
 public class UserRealm extends AuthorizingRealm {
-    /**
-     * @author Teikou
-     * @date 2019/10/9 12:10
-     *
-     */
+
     @Autowired
-    UserService userService;
-    @Override //授权
+    private UserService userService;
+
+    @Autowired
+    private PermissionService permissionService;
+
+    /**
+     * 授权：当需要检查用户权限时调用 (如使用 @RequiresRoles)
+     */
+    @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        String username= (String) principalCollection.getPrimaryPrincipal();
-        User userByUsername = userService.findUserByUsername(username);
-        String role= userByUsername.getRoleId().toString();
-        Set<String> roles =new HashSet<>();
-        roles.add(role);
-        SimpleAuthorizationInfo simpleAuthorizationInfo =new SimpleAuthorizationInfo();
-        simpleAuthorizationInfo.setRoles(roles);
-        return simpleAuthorizationInfo;
-//        return null;
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+        User user = (User) principalCollection.getPrimaryPrincipal();
+        authorizationInfo.addRole(String.valueOf(user.getRoleId()));
+        List<String> permissions = permissionService.getPermissionCodesByRoleId(user.getRoleId());
+        if (permissions != null && !permissions.isEmpty()) {
+            authorizationInfo.addStringPermissions(permissions);
+        }
+        return authorizationInfo;
     }
 
-    @Override  //认证
+    /**
+     * 认证：当用户执行 subject.login(token) 时调用
+     */
+    @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        //从主体传过来的认证信息获得用户名
-        String username = (String) authenticationToken.getPrincipal();
-        //通过用户名获取凭证
-        String password = userService.findPasswordByUsername(username);
+        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+        String username = token.getUsername();
+        User user = userService.findUserByUsername(username);
 
-        if (password == null) {
-            return null;
+        // 1. 判断用户是否存在
+        if (user == null) {
+            throw new UnknownAccountException("用户不存在");
         }
-        SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(username, password,getName());
-//        simpleAuthenticationInfo.setCredentialsSalt(ByteSource.Util.bytes("xsglx"));
 
-        return simpleAuthenticationInfo;
+        // 2. 返回包含【加密密码】和【盐】的 AuthenticationInfo 对象
+        //    Shiro 会用这个信息和我们配置的 HashedCredentialsMatcher 来自动比对密码
+        return new SimpleAuthenticationInfo(
+                user,                                  // Principal: 认证主体，通常是 user 对象
+                user.getPassword(),                    // Hashed Credentials: 数据库中存储的【加密后】的密码
+                ByteSource.Util.bytes(user.getSalt()), // Salt: 数据库中存储的盐，必须用 ByteSource 包装
+                this.getName()                         // Realm Name
+        );
     }
 }

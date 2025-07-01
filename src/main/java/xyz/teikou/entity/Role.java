@@ -1,16 +1,17 @@
 package xyz.teikou.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
- * 
+ * 角色实体类
  * </p>
  *
  * @author teikou
@@ -22,12 +23,15 @@ public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "role_id", type = IdType.ID_WORKER)
-    private Integer roleId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
     @TableField("role_name")
     private String roleName;
 
-    @TableField("role_permission")
-    private String rolePermission;
+    @TableField("role_desc")
+    private String roleDesc;
+
+    @TableField(exist = false)
+    private List<Permission> permissions;
 }

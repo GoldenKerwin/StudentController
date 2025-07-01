@@ -46,4 +46,11 @@ public class StuInfoServiceImpl implements StuInfoService {
         queryWrapper.eq("sch_number",schNumber);
         return stuInfoMapper.selectOne(queryWrapper);
     }
+    
+    @Override
+    public List<StuInfo> findStudentsByClass(String className) {
+        QueryWrapper<StuInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("class_name", className);
+        return stuInfoMapper.selectList(queryWrapper);
+    }
 }

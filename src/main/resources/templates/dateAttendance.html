@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>日期考勤查询</title>
+    <link rel="stylesheet" th:href="@{/css/apple-style.css}">
+    <style>
+        .search-form {
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+        .search-form label {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        .search-form input {
+            padding: 10px 15px;
+            border: 1px solid var(--apple-border);
+            border-radius: var(--apple-radius);
+            margin-right: 15px;
+            flex: 1;
+            max-width: 300px;
+        }
+        .search-form input:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+        .search-form button {
+            background-color: var(--apple-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--apple-radius);
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: var(--apple-blue-hover);
+        }
+        .attendance-list {
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .attendance-list table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .attendance-list th {
+            background-color: var(--apple-gray);
+            padding: 16px;
+            text-align: left;
+            font-weight: 500;
+            color: var(--apple-dark);
+            border-bottom: 1px solid var(--apple-border);
+        }
+        .attendance-list td {
+            padding: 16px;
+            border-bottom: 1px solid var(--apple-border);
+        }
+        .attendance-list tr:last-child td {
+            border-bottom: none;
+        }
+        .attendance-list tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .status-normal {
+            color: var(--apple-success);
+        }
+        .status-leave {
+            color: #0071e3;
+        }
+        .status-warning {
+            color: var(--apple-error);
+        }
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border-radius: var(--apple-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            margin-right: 12px;
+            background-color: var(--apple-blue);
+            color: white;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: var(--apple-blue-hover);
+        }
+        .button.small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        .button.danger {
+            background-color: var(--apple-error);
+        }
+        .button.danger:hover {
+            background-color: #ff2d20;
+        }
+        .info-message {
+            background-color: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+            padding: 16px;
+            border-radius: var(--apple-radius);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>日期考勤查询</h3>
+        
+        <div class="search-form">
+            <form th:action="@{/attendance/dateAttendance}" method="get">
+                <label for="date">日期:</label>
+                <input type="date" id="date" name="date" th:value="${date != null ? #dates.format(date, 'yyyy-MM-dd') : ''}" required>
+                <button type="submit">查询</button>
+            </form>
+        </div>
+        
+        <div th:if="${date != null && attendanceList != null && !attendanceList.isEmpty()}" class="attendance-list">
+            <h2 th:text="${#dates.format(date, 'yyyy-MM-dd') + ' 考勤记录'}">考勤记录</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>课程</th>
+                        <th>状态</th>
+                        <th>备注</th>
+                        <th>记录人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="attendance : ${attendanceList}">
+                        <td th:text="${attendance.schNumber}">2024001</td>
+                        <td th:text="${attendance.course}">课程名称</td>
+                        <td th:text="${attendance.status}" 
+                            th:class="${attendance.status == '正常' ? 'status-normal' : 
+                                    (attendance.status == '请假' ? 'status-leave' : 'status-warning')}">
+                            正常
+                        </td>
+                        <td th:text="${attendance.remark}">备注</td>
+                        <td th:text="${attendance.operator}">操作人</td>
+                        <td>
+                            <a th:href="@{/attendance/edit(id=${attendance.id})}" class="button small">编辑</a>
+                            <a th:href="@{/attendance/delete(id=${attendance.id}, returnUrl='/attendance/dateAttendance?date=' + ${#dates.format(date, 'yyyy-MM-dd')})}" 
+                               class="button small danger" onclick="return confirm('确定要删除这条记录吗？')">删除</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div th:if="${date != null && (attendanceList == null || attendanceList.isEmpty())}" class="info-message">
+            没有找到 <span th:text="${#dates.format(date, 'yyyy-MM-dd')}"></span> 的考勤记录
+        </div>
+        
+        <div class="button-container">
+            <a th:href="@{/attendance/record}" class="button">录入考勤</a>
+            <a th:href="@{/attendance/classAttendance}" class="button">班级考勤统计</a>
+            <a th:href="@{/index}" class="button">返回首页</a>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        // 设置默认日期为今天（如果没有指定日期）
+        document.addEventListener('DOMContentLoaded', function() {
+            var dateInput = document.getElementById('date');
+            if (!dateInput.value) {
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0');
+                var yyyy = today.getFullYear();
+                
+                today = yyyy + '-' + mm + '-' + dd;
+                dateInput.value = today;
+            }
+        });
+    </script>
+</body>
+</html> 
