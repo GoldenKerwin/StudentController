@@ -23,7 +23,7 @@
         <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
             <div class="card">
                 <h3 style="margin-top: 0; font-size: 22px;">查询条件</h3>
-                <form role="form" action="/teacher/oneGrade">
+                <form role="form" action="/grade/oneGrade">
                     <div class="form-group">
                         <label>学号</label>
                         <input type="text" name="schNumber" required class="form-control" placeholder="请输入学生学号"/>
@@ -59,14 +59,14 @@
     <div class="row">
         <div class="card">
             <h3 style="margin-top: 0; font-size: 22px;">查询结果</h3>
-            <table class="table">
+            <div th:if="${errorMsg != null}" class="alert alert-warning" th:text="${errorMsg}"></div>
+            <div th:if="${grades != null && grades.size() == 0}" class="alert alert-info">暂无成绩数据</div>
+            <table class="table" th:if="${grades != null && grades.size() > 0}">
                 <thead>
                 <tr>
                     <th>学号</th>
-                    <th>语文成绩</th>
-                    <th>数学成绩</th>
-                    <th>英语成绩</th>
-                    <th>平均成绩</th>
+                    <th>科目名称</th>
+                    <th>成绩</th>
                     <th>考试批次</th>
                     <th>操作</th>
                 </tr>
@@ -74,13 +74,11 @@
                 <tbody>
                 <tr th:each="grade:${grades}">
                     <td th:text="${grade.getSchNumber()}"></td>
-                    <td th:text="${grade.getChinese()}"></td>
-                    <td th:text="${grade.getMath()}"></td>
-                    <td th:text="${grade.getEnglish()}"></td>
-                    <td th:text="((${grade.getChinese()}+${grade.getEnglish()}+${grade.getMath()})/3)"></td>
+                    <td th:text="${grade.getSubName()}"></td>
+                    <td th:text="${grade.getResults()}"></td>
                     <td th:text="${grade.getTestNo()}"></td>
                     <td>
-                        <a th:href="@{/teacher/updateGrade(id=${grade.getId()})}" style="color: var(--apple-blue); text-decoration: none;">修改</a>
+                        <a th:href="@{/grade/updateGrade(id=${grade.getId()})}" style="color: var(--apple-blue); text-decoration: none;">修改</a>
                     </td>
                 </tr>
                 </tbody>

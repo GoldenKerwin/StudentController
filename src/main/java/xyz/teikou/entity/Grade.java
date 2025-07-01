@@ -28,14 +28,11 @@ public class Grade implements Serializable {
     @TableField("sch_number")
     private String schNumber;
 
-    @TableField("chinese")
-    private Integer chinese;
+    @TableField("sub_name")
+    private String subName;
 
-    @TableField("math")
-    private Integer math;
-
-    @TableField("english")
-    private Integer english;
+    @TableField("results")
+    private Double results;
 
     @TableField("test_no")
     private String testNo;

@@ -10,22 +10,20 @@
     <div class="row clearfix">
         <div class="col-md-12 column">
            <h3>查询我的成绩</h3>
-            <table class="table">
+           <div th:if="${errorMsg != null}" class="alert alert-warning" th:text="${errorMsg}"></div>
+           <div th:if="${grades != null && grades.size() == 0}" class="alert alert-info">暂无成绩数据</div>
+            <table class="table" th:if="${grades != null && grades.size() > 0}">
                 <thead>
                 <tr>
-                    <th>语文成绩</th>
-                    <th>数学成绩</th>
-                    <th>英语成绩</th>
-                    <th>平均成绩</th>
+                    <th>科目名称</th>
+                    <th>成绩</th>
                     <th>考试批次</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="grade:${grades}">
-                    <td th:text="${grade.getChinese()}"></td>
-                    <td th:text="${grade.getMath()}"></td>
-                    <td th:text="${grade.getEnglish()}"></td>
-                    <td th:text="((${grade.getChinese()}+${grade.getEnglish()}+${grade.getMath()})/3)"></td>
+                    <td th:text="${grade.getSubName()}"></td>
+                    <td th:text="${grade.getResults()}"></td>
                     <td th:text="${grade.getTestNo()}"></td>
                 </tr>
                 </tbody>

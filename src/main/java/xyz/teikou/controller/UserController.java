@@ -10,6 +10,8 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,8 +21,9 @@ import xyz.teikou.form.UserForm;
 import xyz.teikou.service.UserService;
 import xyz.teikou.shiro.UserRealm;
 
-
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.List;
 
 
 /**
@@ -39,8 +42,21 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ModelAndView register(UserForm userForm) {
+    public ModelAndView register(@Valid UserForm userForm, BindingResult bindingResult) {
         ModelAndView mv = new ModelAndView();
+        
+        // 处理表单校验错误
+        if (bindingResult.hasErrors()) {
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            StringBuilder errorMsg = new StringBuilder();
+            for (FieldError error : errors) {
+                errorMsg.append(error.getDefaultMessage()).append("<br>");
+            }
+            mv.setViewName("/reg");
+            mv.addObject("info", errorMsg.toString());
+            return mv;
+        }
+        
         if (!userForm.getPassword().equals(userForm.getPassword1())) {
             mv.setViewName("/reg");
             mv.addObject("info", "密码不一致");

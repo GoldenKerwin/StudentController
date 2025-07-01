@@ -22,7 +22,7 @@
     </div>
     <div class="row">
         <div class="card" style="max-width: 580px; margin: 0 auto;">
-            <form role="form" action="/teacher/addGrade">
+            <form role="form" action="/grade/addGrade">
                 <div class="form-group">
                     <label>学生学号</label>
                     <select name="schNumber" class="form-control">
@@ -30,26 +30,34 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>语文成绩</label>
-                    <input type="text" name="chinese" class="form-control" placeholder="请输入语文成绩" />
+                    <label>科目名称</label>
+                    <select name="subName" class="form-control">
+                        <option value="计算机网络">计算机网络</option>
+                        <option value="操作系统">操作系统</option>
+                        <option value="数据结构">数据结构</option>
+                        <option value="软件工程">软件工程</option>
+                        <option value="Java程序设计">Java程序设计</option>
+                        <option value="数据库原理">数据库原理</option>
+                        <option value="Web开发技术">Web开发技术</option>
+                        <option value="人工智能">人工智能</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>数学成绩</label>
-                    <input type="text" name="math" class="form-control" placeholder="请输入数学成绩" />
+                    <label>自定义科目</label>
+                    <input type="text" id="customSubject" class="form-control" placeholder="如需输入其他科目名称，请在此填写"/>
                 </div>
                 <div class="form-group">
-                    <label>英语成绩</label>
-                    <input type="text" name="english" class="form-control" placeholder="请输入英语成绩" />
+                    <label>成绩</label>
+                    <input type="number" step="0.1" min="0" max="100" name="results" class="form-control" placeholder="请输入成绩"/>
                 </div>
                 <div class="form-group">
                     <label>考试批次</label>
                     <select name="testNo" class="form-control">
-                        <option value="2019下01">2019下01</option>
-                        <option value="2019下02">2019下02</option>
-                        <option value="2019下03">2019下03</option>
-                        <option value="2019下04">2019下04</option>
-                        <option value="2019下05">2019下05</option>
-<!--                        TODO   后期改  新建考试批次表 从数据库读取  -->
+                        <option value="2023下01">2023下01</option>
+                        <option value="2023下02">2023下02</option>
+                        <option value="2024上01">2024上01</option>
+                        <option value="2024上02">2024上02</option>
+                        <option value="2024下01">2024下01</option>
                     </select>
                 </div>
                 <input th:value="${session.user.getUsername()}" hidden name="operator">
@@ -60,5 +68,43 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('customSubject').addEventListener('input', function() {
+        var selectElement = document.querySelector('select[name="subName"]');
+        if (this.value.trim() !== '') {
+            // 如果自定义科目框有输入，将选择框设为禁用状态
+            selectElement.disabled = true;
+        } else {
+            // 如果自定义科目框为空，恢复选择框
+            selectElement.disabled = false;
+        }
+    });
+
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        var customSubject = document.getElementById('customSubject').value.trim();
+        var selectElement = document.querySelector('select[name="subName"]');
+        
+        // 如果有自定义科目，则使用自定义科目的值
+        if (customSubject !== '') {
+            // 创建一个新的隐藏字段来存储科目名称
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'subName';
+            hiddenInput.value = customSubject;
+            
+            // 添加到表单中
+            this.appendChild(hiddenInput);
+            
+            // 禁用原来的选择框，避免同时提交两个 subName
+            selectElement.disabled = true;
+        }
+        
+        // 提交表单
+        this.submit();
+    });
+</script>
 </body>
 </html>
