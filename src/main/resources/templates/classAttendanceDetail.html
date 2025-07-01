@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>班级考勤详细统计</title>
+    <link rel="stylesheet" th:href="@{/css/apple-style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        .search-form {
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+        .search-form label {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        .search-form input {
+            padding: 10px 15px;
+            border: 1px solid var(--apple-border);
+            border-radius: var(--apple-radius);
+            margin-right: 15px;
+            flex: 1;
+            max-width: 300px;
+        }
+        .search-form input:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+        .search-form button {
+            background-color: var(--apple-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--apple-radius);
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: var(--apple-blue-hover);
+        }
+        .content-container {
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .chart-item {
+            width: 45%;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            background-color: #fff;
+        }
+        .stats-summary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            width: 18%;
+            text-align: center;
+            padding: 20px 10px;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            background-color: #fff;
+            margin-bottom: 15px;
+        }
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: var(--apple-light-text);
+        }
+        .normal { color: var(--apple-success); }
+        .late { color: #ff9800; }
+        .early { color: #2196f3; }
+        .absent { color: var(--apple-error); }
+        .leave { color: #0071e3; }
+        .attendance-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            box-shadow: var(--apple-shadow);
+            border-radius: var(--apple-radius);
+            overflow: hidden;
+        }
+        .attendance-table th, .attendance-table td {
+            padding: 16px;
+            text-align: left;
+        }
+        .attendance-table th {
+            background-color: var(--apple-gray);
+            font-weight: 500;
+            color: var(--apple-dark);
+            border-bottom: 1px solid var(--apple-border);
+        }
+        .attendance-table td {
+            border-bottom: 1px solid var(--apple-border);
+        }
+        .attendance-table tr:last-child td {
+            border-bottom: none;
+        }
+        .attendance-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            padding: 20px;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-group label {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--apple-border);
+            border-radius: var(--apple-radius);
+            margin-right: 15px;
+        }
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+        .filter-group button {
+            background-color: var(--apple-gray);
+            color: var(--apple-dark);
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--apple-radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .filter-group button:hover {
+            background-color: #e8e8ed;
+        }
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border-radius: var(--apple-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            margin-right: 12px;
+            background-color: var(--apple-blue);
+            color: white;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: var(--apple-blue-hover);
+        }
+        .empty-data {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--apple-light-text);
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>班级考勤详细统计</h3>
+        
+        <div class="search-form">
+            <form th:action="@{/attendance/classAttendanceDetail}" method="get">
+                <label for="className">班级名称:</label>
+                <input type="text" id="className" name="className" th:value="${className}" required placeholder="例如：Software Engineering 1">
+                <button type="submit">查询</button>
+            </form>
+        </div>
+        
+        <div th:if="${className != null && statistics != null && statistics.total > 0}" class="content-container">
+            <h2 th:text="${className + ' 班级考勤详细统计'}">班级考勤详细统计</h2>
+            
+            <!-- 考勤统计卡片 -->
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="label">总记录数</div>
+                    <div class="number" th:text="${statistics.total}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">正常</div>
+                    <div class="number normal" th:text="${statistics.normalCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">迟到</div>
+                    <div class="number late" th:text="${statistics.lateCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">早退</div>
+                    <div class="number early" th:text="${statistics.earlyCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">缺席</div>
+                    <div class="number absent" th:text="${statistics.absentCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">请假</div>
+                    <div class="number leave" th:text="${statistics.leaveCount}">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">出勤率</div>
+                    <div class="number" th:text="${statistics.normalRate + '%'}">0%</div>
+                </div>
+            </div>
+            
+            <!-- 图表容器 -->
+            <div class="chart-container">
+                <div class="chart-item">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="chart-item">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 学生考勤明细 -->
+            <h3>学生考勤明细</h3>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="statusFilter">状态:</label>
+                    <select id="statusFilter">
+                        <option value="all">全部</option>
+                        <option value="正常">正常</option>
+                        <option value="迟到">迟到</option>
+                        <option value="早退">早退</option>
+                        <option value="缺席">缺席</option>
+                        <option value="请假">请假</option>
+                    </select>
+                    
+                    <label for="dateFilter">日期:</label>
+                    <input type="date" id="dateFilter">
+                    
+                    <button id="resetFilter" type="button">重置筛选</button>
+                </div>
+            </div>
+            
+            <div th:if="${attendanceList != null && !attendanceList.isEmpty()}">
+                <table class="attendance-table" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>日期</th>
+                            <th>课程</th>
+                            <th>状态</th>
+                            <th>备注</th>
+                            <th>记录人</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="attendance : ${attendanceList}" th:attr="data-status=${attendance.status != null ? attendance.status : '未知'}, data-date=${#dates.format(attendance.date, 'yyyy-MM-dd')}">
+                            <td th:text="${attendance.schNumber}">2024001</td>
+                            <td th:text="${studentNames.get(attendance.schNumber) != null ? studentNames.get(attendance.schNumber) : '未知'}">张三</td>
+                            <td th:text="${#dates.format(attendance.date, 'yyyy-MM-dd')}">2023-01-01</td>
+                            <td th:text="${attendance.course != null ? attendance.course : '未知课程'}">课程名称</td>
+                            <td th:with="statusValue=${attendance.status != null ? attendance.status : '未知'}"
+                                th:class="${statusValue == '正常' ? 'normal' : 
+                                        (statusValue == '迟到' ? 'late' : 
+                                        (statusValue == '早退' ? 'early' : 
+                                        (statusValue == '缺席' ? 'absent' : 
+                                        (statusValue == '请假' ? 'leave' : ''))))}"
+                                th:text="${statusValue}">
+                                正常
+                            </td>
+                            <td th:text="${attendance.remark != null ? attendance.remark : ''}">备注</td>
+                            <td th:text="${attendance.operator != null ? attendance.operator : '未知'}">操作人</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div th:if="${attendanceList == null || attendanceList.isEmpty()}" class="empty-data">
+                <h3>暂无考勤记录明细</h3>
+                <p>当前班级没有任何考勤记录明细，请确认班级名称是否正确。</p>
+            </div>
+        </div>
+        
+        <div th:if="${className != null && (statistics == null || statistics.total == 0)}" class="empty-data">
+            <h2>未找到班级考勤数据</h2>
+            <p>没有找到"<span th:text="${className}"></span>"班级的考勤记录，请确认班级名称是否正确或者该班级是否有考勤记录。</p>
+        </div>
+        
+        <div class="button-container">
+            <a th:href="@{/attendance/record}" class="button">录入考勤</a>
+            <a th:href="@{/attendance/classAttendance}" class="button">班级考勤统计</a>
+            <a th:href="@{/attendance/dateAttendance}" class="button">日期考勤查询</a>
+            <a th:href="@{/index}" class="button">返回首页</a>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // 获取统计数据
+        var statistics = /*[[${statistics != null ? statistics : {}}]]*/ {};
+        
+        // 判断是否有数据
+        if (statistics && statistics.total > 0) {
+            // 饼图数据
+            var pieCtx = document.getElementById('pieChart').getContext('2d');
+            var pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['正常', '迟到', '早退', '缺席', '请假'],
+                    datasets: [{
+                        data: [
+                            statistics.normalCount || 0,
+                            statistics.lateCount || 0,
+                            statistics.earlyCount || 0,
+                            statistics.absentCount || 0,
+                            statistics.leaveCount || 0
+                        ],
+                        backgroundColor: [
+                            'rgba(76, 217, 100, 0.6)',  // 正常 - 绿色 (apple-success)
+                            'rgba(255, 149, 0, 0.6)',   // 迟到 - 橙色
+                            'rgba(255, 204, 0, 0.6)',   // 早退 - 黄色
+                            'rgba(255, 59, 48, 0.6)',   // 缺席 - 红色 (apple-error)
+                            'rgba(0, 113, 227, 0.6)'    // 请假 - 蓝色 (apple-blue)
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: '考勤状态分布'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.label || '';
+                                    var value = context.raw || 0;
+                                    var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    var percentage = Math.round((value / total) * 100);
+                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 柱状图数据
+            var barCtx = document.getElementById('barChart').getContext('2d');
+            var barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['正常', '迟到', '早退', '缺席', '请假'],
+                    datasets: [{
+                        label: '人次',
+                        data: [
+                            statistics.normalCount || 0,
+                            statistics.lateCount || 0,
+                            statistics.earlyCount || 0,
+                            statistics.absentCount || 0,
+                            statistics.leaveCount || 0
+                        ],
+                        backgroundColor: [
+                            'rgba(76, 217, 100, 0.6)',
+                            'rgba(255, 149, 0, 0.6)',
+                            'rgba(255, 204, 0, 0.6)',
+                            'rgba(255, 59, 48, 0.6)',
+                            'rgba(0, 113, 227, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(76, 217, 100, 1)',
+                            'rgba(255, 149, 0, 1)',
+                            'rgba(255, 204, 0, 1)',
+                            'rgba(255, 59, 48, 1)',
+                            'rgba(0, 113, 227, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '考勤状态统计'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 筛选功能
+        document.addEventListener('DOMContentLoaded', function() {
+            var statusFilter = document.getElementById('statusFilter');
+            var dateFilter = document.getElementById('dateFilter');
+            var resetFilter = document.getElementById('resetFilter');
+            var rows = document.querySelectorAll('#attendanceTable tbody tr');
+            
+            function applyFilters() {
+                var selectedStatus = statusFilter.value;
+                var selectedDate = dateFilter.value;
+                
+                rows.forEach(function(row) {
+                    var status = row.getAttribute('data-status');
+                    var date = row.getAttribute('data-date');
+                    var statusMatch = selectedStatus === 'all' || status === selectedStatus;
+                    var dateMatch = !selectedDate || date === selectedDate;
+                    
+                    if (statusMatch && dateMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+            
+            statusFilter.addEventListener('change', applyFilters);
+            dateFilter.addEventListener('change', applyFilters);
+            
+            resetFilter.addEventListener('click', function() {
+                statusFilter.value = 'all';
+                dateFilter.value = '';
+                rows.forEach(function(row) {
+                    row.style.display = '';
+                });
+            });
+        });
+        /*]]>*/
+    </script>
+</body>
+</html> 

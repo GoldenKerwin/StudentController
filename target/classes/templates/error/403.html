@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>禁止访问</title>
+    <link rel="stylesheet" th:href="@{/css/apple-style.css}">
+    <style>
+        .error-container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            color: #ec971f;
+        }
+        .error-message {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-code">403</div>
+    <div class="error-message">禁止访问</div>
+    <p>抱歉，您没有权限访问此页面。</p>
+     <p th:if="${path}">
+        <b>请求路径:</b>
+        <span th:text="${path}"></span>
+    </p>
+    <a href="javascript:history.back()" class="back-link">返回上一页</a>
+    <a th:href="@{/index1}" class="back-link">返回首页</a>
+</div>
+</body>
+</html> 

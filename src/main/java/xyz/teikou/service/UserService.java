@@ -16,4 +16,18 @@ public interface UserService {
     public User findUserByUsername(String username);
     public void userUpdate(User user);
     public List<User> findAllUser();
+    
+    /**
+     * 通过ID查找用户
+     * @param id 用户ID
+     * @return 用户对象
+     */
+    public User findUserById(Integer id);
+    
+    /**
+     * 通过学号查找用户
+     * @param schNumber 学号
+     * @return 用户对象
+     */
+    public User findUserBySchNumber(String schNumber);
 }

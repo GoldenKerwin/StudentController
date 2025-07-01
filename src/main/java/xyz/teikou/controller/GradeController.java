@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 成绩管理控制器
@@ -157,14 +158,13 @@ public class GradeController {
     /**
      * 教师更新成绩
      */
-    @RequestMapping("/updateGrades")
+    @RequestMapping("/updateTheGrade")
     @RequiresRoles("2")
-    public ModelAndView updateGrades(@Valid GradeForm gradeForm, BindingResult bindingResult) {
+    public ModelAndView updateTheGrade(@Valid GradeForm gradeForm, BindingResult bindingResult) {
         ModelAndView mv = new ModelAndView();
         
         if (bindingResult.hasErrors()) {
             mv.setViewName("updateGrades");
-            mv.addObject("grade", gradeForm);
             mv.addObject("info", "表单验证失败，请检查输入");
             return mv;
         }
@@ -173,6 +173,50 @@ public class GradeController {
         BeanUtils.copyProperties(gradeForm, grade);
         gradeService.updateGrade(grade);
         mv.setViewName("success");
+        return mv;
+    }
+    
+    /**
+     * 学生查看自己的成绩统计分析
+     */
+    @RequestMapping("/myStatistics")
+    @RequiresRoles("1")
+    public ModelAndView myStatistics(HttpServletRequest request) {
+        ModelAndView mv = new ModelAndView("gradeStatistics");
+        User user = (User) request.getSession().getAttribute("user");
+        String schNumber = user.getSchNumber();
+        
+        Map<String, Object> statistics = gradeService.getGradeStatistics(schNumber);
+        mv.addObject("statistics", statistics);
+        return mv;
+    }
+    
+    /**
+     * 教师查看班级成绩统计
+     */
+    @RequestMapping("/classStatistics")
+    @RequiresRoles("2")
+    public ModelAndView classStatistics(@RequestParam(value = "className", required = false) String className) {
+        ModelAndView mv = new ModelAndView("classStatistics");
+        
+        if (className != null && !className.isEmpty()) {
+            Map<String, Object> statistics = gradeService.getClassStatistics(className);
+            mv.addObject("statistics", statistics);
+            mv.addObject("className", className);
+        }
+        
+        return mv;
+    }
+    
+    /**
+     * 教师查看所有科目统计
+     */
+    @RequestMapping("/subjectStatistics")
+    @RequiresRoles("2")
+    public ModelAndView subjectStatistics() {
+        ModelAndView mv = new ModelAndView("subjectStatistics");
+        List<Map<String, Object>> subjectStats = gradeService.getSubjectAverages();
+        mv.addObject("subjectStats", subjectStats);
         return mv;
     }
 } 

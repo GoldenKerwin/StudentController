@@ -28,6 +28,15 @@ public class StuInfo implements Serializable {
     @TableField("sch_number")
     private String schNumber;
 
+    @TableField("name")
+    private String name;
+
+    @TableField("class_name")
+    private String className;
+
+    @TableField("sex")
+    private String sex;
+
     @TableField("address")
     private String address;
 

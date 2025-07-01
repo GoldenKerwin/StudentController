@@ -68,4 +68,16 @@ public class UserServiceImpl implements UserService {
     public List<User> findAllUser() {
        return userMapper.selectList(null);
     }
+    
+    @Override
+    public User findUserById(Integer id) {
+        return userMapper.selectById(id);
+    }
+    
+    @Override
+    public User findUserBySchNumber(String schNumber) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("sch_number", schNumber);
+        return userMapper.selectOne(queryWrapper);
+    }
 }

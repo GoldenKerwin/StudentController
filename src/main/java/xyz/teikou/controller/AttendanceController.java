@@ -1,0 +1,287 @@
+package xyz.teikou.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import xyz.teikou.entity.Attendance;
+import xyz.teikou.entity.StuInfo;
+import xyz.teikou.entity.User;
+import xyz.teikou.form.AttendanceForm;
+import xyz.teikou.service.AttendanceService;
+import xyz.teikou.service.StuInfoService;
+import xyz.teikou.service.UserService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * 考勤管理控制器
+ */
+@Slf4j
+@Controller
+@RequestMapping("/attendance")
+public class AttendanceController {
+    
+    @Autowired
+    private AttendanceService attendanceService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private StuInfoService stuInfoService;
+    
+    /**
+     * 跳转到录入考勤页面
+     */
+    @RequestMapping("/record")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView recordAttendance() {
+        ModelAndView mv = new ModelAndView("recordAttendance");
+        List<User> students = userService.findAllUser();
+        mv.addObject("students", students != null ? students : Collections.emptyList());
+        return mv;
+    }
+    
+    /**
+     * 保存考勤记录
+     */
+    @RequestMapping("/save")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView saveAttendance(@Valid AttendanceForm form, BindingResult result, HttpServletRequest request) {
+        ModelAndView mv = new ModelAndView();
+        
+        if (result.hasErrors()) {
+            mv.setViewName("recordAttendance");
+            List<User> students = userService.findAllUser();
+            mv.addObject("students", students != null ? students : Collections.emptyList());
+            mv.addObject("info", "表单验证失败，请检查输入");
+            return mv;
+        }
+        
+        User user = (User) request.getSession().getAttribute("user");
+        Attendance attendance = new Attendance();
+        BeanUtils.copyProperties(form, attendance);
+        attendance.setOperator(user != null ? user.getName() : "未知用户");
+        
+        try {
+            attendanceService.addAttendance(attendance);
+            mv.setViewName("success");
+        } catch (Exception e) {
+            log.error("保存考勤记录失败", e);
+            mv.setViewName("recordAttendance");
+            List<User> students = userService.findAllUser();
+            mv.addObject("students", students != null ? students : Collections.emptyList());
+            mv.addObject("info", "保存考勤记录失败，请稍后重试");
+        }
+        return mv;
+    }
+    
+    /**
+     * 学生查看自己的考勤记录
+     */
+    @RequestMapping("/myAttendance")
+    @RequiresPermissions("stu:attendance:view")
+    public ModelAndView myAttendance(HttpServletRequest request) {
+        ModelAndView mv = new ModelAndView("myAttendance");
+        User user = (User) request.getSession().getAttribute("user");
+        
+        if (user == null) {
+            mv.addObject("statistics", null);
+            return mv;
+        }
+        
+        String schNumber = user.getSchNumber();
+        Map<String, Object> statistics = attendanceService.getAttendanceStatistics(schNumber);
+        mv.addObject("statistics", statistics);
+        return mv;
+    }
+    
+    /**
+     * 教师查看学生考勤记录
+     */
+    @RequestMapping("/studentAttendance")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView studentAttendance(@RequestParam("schNumber") String schNumber) {
+        ModelAndView mv = new ModelAndView("studentAttendance");
+        
+        if (schNumber == null || schNumber.isEmpty()) {
+            mv.addObject("statistics", null);
+            mv.addObject("schNumber", "");
+            return mv;
+        }
+        
+        Map<String, Object> statistics = attendanceService.getAttendanceStatistics(schNumber);
+        mv.addObject("statistics", statistics);
+        mv.addObject("schNumber", schNumber);
+        return mv;
+    }
+    
+    /**
+     * 教师查看班级考勤统计
+     */
+    @RequestMapping("/classAttendance")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView classAttendance(@RequestParam(value = "className", required = false) String className) {
+        ModelAndView mv = new ModelAndView("classAttendance");
+        
+        if (className != null && !className.isEmpty()) {
+            Map<String, Object> statistics = attendanceService.getClassAttendanceStatistics(className);
+            mv.addObject("statistics", statistics);
+            mv.addObject("className", className);
+        }
+        
+        return mv;
+    }
+    
+    /**
+     * 教师查看班级考勤详细统计
+     */
+    @RequestMapping("/classAttendanceDetail")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView classAttendanceDetail(@RequestParam(value = "className", required = false) String className) {
+        ModelAndView mv = new ModelAndView("classAttendanceDetail");
+        
+        if (className != null && !className.isEmpty()) {
+            // 获取考勤统计数据
+            Map<String, Object> statistics = attendanceService.getClassAttendanceStatistics(className);
+            mv.addObject("statistics", statistics);
+            
+            // 获取考勤记录列表
+            List<Attendance> attendanceList = attendanceService.getClassAttendance(className);
+            mv.addObject("attendanceList", attendanceList != null ? attendanceList : Collections.emptyList());
+            
+            // 获取学生姓名映射
+            List<StuInfo> students = stuInfoService.findStudentsByClass(className);
+            Map<String, String> studentNames = Collections.emptyMap();
+            
+            if (students != null && !students.isEmpty()) {
+                studentNames = students.stream()
+                        .collect(Collectors.toMap(
+                            StuInfo::getSchNumber, 
+                            StuInfo::getName,
+                            (existing, replacement) -> existing // 如果有重复的学号，保留第一个
+                        ));
+            }
+            
+            mv.addObject("studentNames", studentNames);
+            mv.addObject("className", className);
+        }
+        
+        return mv;
+    }
+    
+    /**
+     * 教师查看日期考勤记录
+     */
+    @RequestMapping("/dateAttendance")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView dateAttendance(@RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        ModelAndView mv = new ModelAndView("dateAttendance");
+        
+        if (date != null) {
+            List<Attendance> attendanceList = attendanceService.getAttendanceByDate(date);
+            mv.addObject("attendanceList", attendanceList != null ? attendanceList : Collections.emptyList());
+            mv.addObject("date", date);
+        }
+        
+        return mv;
+    }
+    
+    /**
+     * 教师删除考勤记录
+     */
+    @RequestMapping("/delete")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView deleteAttendance(@RequestParam("id") Integer id, @RequestParam(value = "returnUrl", required = false) String returnUrl) {
+        ModelAndView mv = new ModelAndView();
+        
+        try {
+            attendanceService.deleteAttendance(id);
+            
+            if (returnUrl != null && !returnUrl.isEmpty()) {
+                mv.setViewName("redirect:" + returnUrl);
+            } else {
+                mv.setViewName("success");
+            }
+        } catch (Exception e) {
+            log.error("删除考勤记录失败", e);
+            mv.setViewName("error");
+            mv.addObject("message", "删除考勤记录失败，请稍后重试");
+        }
+        
+        return mv;
+    }
+    
+    /**
+     * 跳转到编辑考勤页面
+     */
+    @RequestMapping("/edit")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView editAttendance(@RequestParam("id") Integer id) {
+        ModelAndView mv = new ModelAndView("editAttendance");
+        
+        try {
+            Attendance attendance = attendanceService.getAttendanceById(id);
+            
+            if (attendance == null) {
+                mv.setViewName("error");
+                mv.addObject("message", "未找到该考勤记录，请检查ID是否正确");
+                return mv;
+            }
+            
+            mv.addObject("attendance", attendance);
+        } catch (Exception e) {
+            log.error("获取考勤记录失败", e);
+            mv.setViewName("error");
+            mv.addObject("message", "获取考勤记录失败，请稍后重试");
+        }
+        
+        return mv;
+    }
+    
+    /**
+     * 更新考勤记录
+     */
+    @RequestMapping("/update")
+    @RequiresPermissions("teacher:attendance:manage")
+    public ModelAndView updateAttendance(@Valid AttendanceForm form, BindingResult result, HttpServletRequest request) {
+        ModelAndView mv = new ModelAndView();
+        
+        if (result.hasErrors()) {
+            mv.setViewName("editAttendance");
+            mv.addObject("attendance", form);
+            mv.addObject("info", "表单验证失败，请检查输入");
+            return mv;
+        }
+        
+        try {
+            User user = (User) request.getSession().getAttribute("user");
+            Attendance attendance = new Attendance();
+            BeanUtils.copyProperties(form, attendance);
+            attendance.setOperator(user != null ? user.getName() : "未知用户");
+            
+            attendanceService.updateAttendance(attendance);
+            mv.setViewName("success");
+        } catch (Exception e) {
+            log.error("更新考勤记录失败", e);
+            mv.setViewName("editAttendance");
+            mv.addObject("attendance", form);
+            mv.addObject("info", "更新考勤记录失败，请稍后重试");
+        }
+        
+        return mv;
+    }
+} 

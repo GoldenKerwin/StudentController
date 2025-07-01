@@ -1,59 +1,64 @@
 package xyz.teikou.shiro;
 
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import xyz.teikou.entity.User;
+import xyz.teikou.service.PermissionService;
 import xyz.teikou.service.UserService;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Creat by TeiKou
- * 2019/10/9 12:08
+ * 2019/10/9 14:07
  */
+@Slf4j
+@Component
 public class UserRealm extends AuthorizingRealm {
-    /**
-     * @author Teikou
-     * @date 2019/10/9 12:10
-     *
-     */
+
     @Autowired
     UserService userService;
-    @Override //授权
+    
+    @Autowired
+    PermissionService permissionService;
+
+    /**
+     * 授权
+     */
+    @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        String username= (String) principalCollection.getPrimaryPrincipal();
-        User userByUsername = userService.findUserByUsername(username);
-        String role= userByUsername.getRoleId().toString();
-        Set<String> roles =new HashSet<>();
-        roles.add(role);
-        SimpleAuthorizationInfo simpleAuthorizationInfo =new SimpleAuthorizationInfo();
-        simpleAuthorizationInfo.setRoles(roles);
-        return simpleAuthorizationInfo;
-//        return null;
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+        User user = (User) principalCollection.getPrimaryPrincipal();
+        
+        // 添加角色
+        authorizationInfo.addRole(String.valueOf(user.getRoleId()));
+        
+        // 添加权限
+        List<String> permissions = permissionService.getPermissionCodesByRoleId(user.getRoleId());
+        if (permissions != null && !permissions.isEmpty()) {
+            authorizationInfo.addStringPermissions(permissions);
+        }
+        
+        return authorizationInfo;
     }
 
-    @Override  //认证
+    /**
+     * 认证
+     */
+    @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        //从主体传过来的认证信息获得用户名
-        String username = (String) authenticationToken.getPrincipal();
-        //通过用户名获取凭证
-        String password = userService.findPasswordByUsername(username);
-
-        if (password == null) {
-            return null;
+        UsernamePasswordToken token= (UsernamePasswordToken) authenticationToken;
+        User user=userService.findUserByUsername(token.getUsername());
+        if (user!=null){
+            return new SimpleAuthenticationInfo(user,user.getPassword(),this.getName());
         }
-        SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(username, password,getName());
-//        simpleAuthenticationInfo.setCredentialsSalt(ByteSource.Util.bytes("xsglx"));
-
-        return simpleAuthenticationInfo;
+        log.warn("用户 [{}] 不存在", token.getUsername());
+        return null;
     }
 }
