@@ -5,99 +5,124 @@
     <title>我的成绩统计</title>
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <!-- 1. 引入美化样式 -->
+    <style>
+        .statistics-card {
+            background-color: #fff; border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow); padding: 24px;
+            margin: 24px auto; max-width: 900px;
+        }
+        .chart-container {
+            background-color: #fff; border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow); padding: 24px;
+            margin: 24px auto; max-width: 900px;
+            height: 400px; position: relative;
+        }
+        .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .stat-item { flex: 1; min-width: 200px; padding: 16px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        table th {
+            background-color: var(--apple-gray); padding: 16px; text-align: left;
+            font-weight: 500; color: var(--apple-dark); border-bottom: none;
+        }
+        table td { padding: 16px; border-bottom: 1px solid var(--apple-border); }
+        table tr:last-child td { border-bottom: none; }
+        .button-container { margin-top: 24px; text-align: center; }
+        .button {
+            display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500;
+            text-align: center; border-radius: var(--apple-radius); cursor: pointer;
+            transition: all 0.2s ease; border: none; margin-right: 12px;
+            background-color: var(--apple-blue); color: white; text-decoration: none;
+        }
+        .status-pass { color: var(--apple-success); }
+        .status-fail { color: var(--apple-error); }
+    </style>
 </head>
 <body>
-    <h1>我的成绩统计分析</h1>
-    
-    <div class="statistics-card">
-        <h2>个人成绩概况</h2>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <h3>总览</h3>
-                <p>科目数量: <span th:text="${statistics.totalSubjects}"></span></p>
-                <p>平均分: <span th:text="${statistics.average}"></span></p>
-                <p>及格率: <span th:text="${statistics.passRate}"></span>%</p>
-            </div>
-            <div class="stat-item">
-                <h3>最优/最差科目</h3>
-                <p>最高分: <span th:text="${statistics.max}"></span> (<span th:text="${statistics.bestSubject}"></span>)</p>
-                <p>最低分: <span th:text="${statistics.min}"></span> (<span th:text="${statistics.weakestSubject}"></span>)</p>
+<div class="container">
+    <h3>我的成绩统计分析</h3>
+
+    <!-- 2. 使用新的卡片式布局 -->
+    <th:block th:if="${statistics != null and statistics.totalSubjects > 0}">
+        <!-- 卡片1: 成绩概况 -->
+        <div class="statistics-card">
+            <h2>个人成绩概况</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>总览</h3>
+                    <p>科目数量: <span th:text="${statistics.totalSubjects}"></span></p>
+                    <p>平均分: <span th:text="${statistics.average}"></span></p>
+                    <p>及格率: <span th:text="${statistics.passRate}"></span>%</p>
+                </div>
+                <div class="stat-item">
+                    <h3>最优/最差科目</h3>
+                    <p>最高分: <span th:text="${statistics.max}"></span> (<span th:text="${statistics.bestSubject}"></span>)</p>
+                    <p>最低分: <span th:text="${statistics.min}"></span> (<span th:text="${statistics.weakestSubject}"></span>)</p>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="statistics-card">
-        <h2>成绩详情</h2>
-        <table border="1">
-            <tr>
-                <th>科目</th>
-                <th>成绩</th>
-                <th>状态</th>
-            </tr>
-            <tr th:each="grade : ${statistics.gradesList}">
-                <td th:text="${grade.subName}"></td>
-                <td th:text="${grade.results}"></td>
-                <td th:text="${grade.results >= 60 ? '及格' : '不及格'}" 
-                    th:style="${grade.results >= 60 ? 'color:green;' : 'color:red;'}"></td>
-            </tr>
-        </table>
-    </div>
-    
-    <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
-        <canvas id="gradesChart"></canvas>
-    </div>
-    
+
+        <!-- 卡片2: 图表 -->
+        <div class="chart-container">
+            <canvas id="gradesChart"></canvas>
+        </div>
+
+        <!-- 卡片3: 成绩详情表格 -->
+        <div class="statistics-card">
+            <h2>成绩详情</h2>
+            <table>
+                <thead><tr><th>科目</th><th>成绩</th><th>状态</th></tr></thead>
+                <tbody>
+                <tr th:each="grade : ${statistics.gradesList}">
+                    <td th:text="${grade.subName}"></td>
+                    <td th:text="${grade.results}"></td>
+                    <td th:text="${grade.results >= 60 ? '及格' : '不及格'}"
+                        th:class="${grade.results >= 60 ? 'status-pass' : 'status-fail'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </th:block>
+
     <div class="button-container">
-        <a th:href="@{/grade/myGrades}" class="button">返回成绩列表</a>
+        <a th:href="@{/grade/myGrades}" class="button">返回我的成绩</a>
     </div>
-    
+
     <script th:inline="javascript">
         /*<![CDATA[*/
-        // 获取成绩数据
-        var grades = /*[[${statistics.gradesList}]]*/ [];
-        
-        // 准备图表数据
-        var subjects = [];
-        var scores = [];
-        var backgroundColors = [];
-        
-        for (var i = 0; i < grades.length; i++) {
-            subjects.push(grades[i].subName);
-            scores.push(grades[i].results);
-            backgroundColors.push(grades[i].results >= 60 ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)');
-        }
-        
-        // 创建图表
-        var ctx = document.getElementById('gradesChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: subjects,
-                datasets: [{
-                    label: '成绩',
-                    data: scores,
-                    backgroundColor: backgroundColors,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
+        // JavaScript 部分保持不变
+        var statistics = /*[[${statistics}]]*/ null;
+        if (statistics && statistics.gradesList) {
+            var grades = statistics.gradesList;
+            if (grades.length > 0) {
+                var subjects = [], scores = [], backgroundColors = [];
+                grades.forEach(g => {
+                    subjects.push(g.subName);
+                    scores.push(g.results);
+                    backgroundColors.push(g.results >= 60 ? 'rgba(54, 162, 235, 0.7)' : 'rgba(255, 99, 132, 0.7)');
+                });
+
+                var ctx = document.getElementById('gradesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: subjects,
+                        datasets: [{
+                            label: '成绩',
+                            data: scores,
+                            backgroundColor: backgroundColors
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        scales: { y: { beginAtZero: true, max: 100 } },
+                        plugins: { title: { display: true, text: '各科目成绩对比' } }
                     }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '科目成绩对比'
-                    }
-                }
+                });
             }
-        });
+        }
         /*]]>*/
     </script>
 </body>
-</html> 
+</html>

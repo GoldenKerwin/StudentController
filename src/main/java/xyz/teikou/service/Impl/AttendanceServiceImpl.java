@@ -11,6 +11,7 @@ import xyz.teikou.mapper.AttendanceMapper;
 import xyz.teikou.mapper.StuInfoMapper;
 import xyz.teikou.service.AttendanceService;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,21 +56,34 @@ public class AttendanceServiceImpl implements AttendanceService {
         queryWrapper.orderByDesc("date");
         return attendanceMapper.selectList(queryWrapper);
     }
-    
+
+    /**
+     * @param date
+     * @return
+     */
     @Override
     public List<Attendance> getAttendanceByDate(Date date) {
+        if (date == null) {
+            return Collections.emptyList();
+        }
         QueryWrapper<Attendance> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("date", date);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = sdf.format(date);
+
+        // 使用数据库的 DATE() 函数进行精确的日期匹配，忽略时间部分
+        queryWrapper.apply("DATE(date) = {0}", dateString);
+
         return attendanceMapper.selectList(queryWrapper);
     }
-    
+
     @Override
     public List<Attendance> getAttendanceByCourse(String course) {
         QueryWrapper<Attendance> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("course", course);
         return attendanceMapper.selectList(queryWrapper);
     }
-    
+
+
     @Override
     public List<Attendance> getClassAttendance(String className) {
         // 首先获取该班级所有学生

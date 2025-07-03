@@ -6,6 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <style>
+        /* 您提供的所有样式保持不变 */
         .search-form {
             background-color: #fff;
             border-radius: var(--apple-radius);
@@ -15,272 +16,195 @@
             display: flex;
             align-items: center;
         }
-        .search-form label {
-            margin-right: 10px;
-            font-weight: 500;
-        }
+        .search-form label { margin-right: 10px; font-weight: 500; }
         .search-form input {
-            padding: 10px 15px;
-            border: 1px solid var(--apple-border);
-            border-radius: var(--apple-radius);
-            margin-right: 15px;
-            flex: 1;
-            max-width: 300px;
+            padding: 10px 15px; border: 1px solid var(--apple-border);
+            border-radius: var(--apple-radius); margin-right: 15px;
+            flex: 1; max-width: 300px;
         }
         .search-form input:focus {
-            outline: none;
-            border-color: var(--apple-blue);
+            outline: none; border-color: var(--apple-blue);
             box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
         }
         .search-form button {
-            background-color: var(--apple-blue);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: var(--apple-radius);
-            cursor: pointer;
+            background-color: var(--apple-blue); color: white; border: none;
+            padding: 10px 20px; border-radius: var(--apple-radius); cursor: pointer;
         }
-        .search-form button:hover {
-            background-color: var(--apple-blue-hover);
-        }
+        .search-form button:hover { background-color: var(--apple-blue-hover); }
         .statistics-card {
-            background-color: #fff;
-            border-radius: var(--apple-radius);
-            box-shadow: var(--apple-shadow);
-            padding: 24px;
-            margin-bottom: 24px;
+            background-color: #fff; border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow); padding: 24px; margin-bottom: 24px;
         }
-        .stats-grid {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-        .stat-item {
-            flex: 1;
-            min-width: 200px;
-            padding: 16px;
-        }
+        .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .stat-item { flex: 1; min-width: 200px; padding: 16px; }
+
+        /* ==================== 关键修改 1: 只修改图表容器样式 ==================== */
         .chart-container {
             background-color: #fff !important;
             border-radius: var(--apple-radius);
             box-shadow: var(--apple-shadow);
             padding: 24px !important;
             margin-bottom: 24px !important;
+            /* 保留您原有的内联样式所对应的属性，并添加 position: relative */
+            position: relative;
+            height: 40vh;
+            margin: 20px auto;
         }
-        .button-container {
-            margin-top: 20px;
-            text-align: center;
-        }
+        /* ===================================================================== */
+
+        .button-container { margin-top: 20px; text-align: center; }
         .button {
-            display: inline-block;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
-            border-radius: var(--apple-radius);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            margin-right: 12px;
-            background-color: var(--apple-blue);
-            color: white;
-            text-decoration: none;
+            display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500;
+            text-align: center; border-radius: var(--apple-radius); cursor: pointer;
+            transition: all 0.2s ease; border: none; margin-right: 12px;
+            background-color: var(--apple-blue); color: white; text-decoration: none;
         }
-        .button:hover {
-            background-color: var(--apple-blue-hover);
-        }
+        .button:hover { background-color: var(--apple-blue-hover); }
         .detail-button {
-            background-color: var(--apple-gray);
-            color: var(--apple-dark);
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: var(--apple-radius);
-            text-decoration: none;
-            transition: all 0.2s ease;
+            background-color: var(--apple-gray); color: var(--apple-dark);
+            display: inline-block; padding: 8px 16px;
+            border-radius: var(--apple-radius); text-decoration: none; transition: all 0.2s ease;
         }
-        .detail-button:hover {
-            background-color: #e8e8ed;
-        }
+        .detail-button:hover { background-color: #e8e8ed; }
         .status-normal { color: var(--apple-success); }
         .status-leave { color: #0071e3; }
         .status-warning { color: var(--apple-error); }
-        .empty-data {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--apple-light-text);
-        }
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
+        .empty-data { text-align: center; padding: 40px 0; color: var(--apple-light-text); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
         table th {
-            background-color: var(--apple-gray);
-            padding: 16px;
-            text-align: left;
-            font-weight: 500;
-            color: var(--apple-dark);
-            border-bottom: 1px solid var(--apple-border);
+            background-color: var(--apple-gray); padding: 16px; text-align: left;
+            font-weight: 500; color: var(--apple-dark); border-bottom: 1px solid var(--apple-border);
         }
-        table td {
-            padding: 16px;
-            border-bottom: 1px solid var(--apple-border);
-        }
-        table tr:last-child td {
-            border-bottom: none;
-        }
-        table tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
+        table td { padding: 16px; border-bottom: 1px solid var(--apple-border); }
+        table tr:last-child td { border-bottom: none; }
+        table tbody tr:hover { background-color: rgba(0, 0, 0, 0.02); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3>班级考勤统计</h3>
-        
-        <div class="search-form">
-            <form th:action="@{/attendance/classAttendance}" method="get">
-                <label for="className">班级名称:</label>
-                <input type="text" id="className" name="className" th:value="${className}" required placeholder="例如：Software Engineering 1">
-                <button type="submit">查询</button>
-            </form>
-        </div>
-        
-        <div th:if="${className != null && statistics != null && statistics.total > 0}" class="statistics-card">
-            <h2 th:text="${className + ' 班级考勤概况'}">班级考勤概况</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <h3>出勤情况</h3>
-                    <p>总记录数: <span th:text="${statistics.total}">0</span></p>
-                    <p>正常出勤率: <span th:text="${statistics.normalRate}">0</span>%</p>
-                </div>
-                <div class="stat-item">
-                    <h3>详细统计</h3>
-                    <p>正常: <span th:text="${statistics.normalCount}" class="status-normal">0</span></p>
-                    <p>迟到: <span th:text="${statistics.lateCount}" class="status-warning">0</span></p>
-                    <p>早退: <span th:text="${statistics.earlyCount}" class="status-warning">0</span></p>
-                    <p>缺席: <span th:text="${statistics.absentCount}" class="status-warning">0</span></p>
-                    <p>请假: <span th:text="${statistics.leaveCount}" class="status-leave">0</span></p>
-                </div>
+<div class="container">
+    <h3>班级考勤统计</h3>
+
+    <div class="search-form">
+        <form th:action="@{/attendance/classAttendance}" method="get">
+            <label for="className">班级名称:</label>
+            <input type="text" id="className" name="className" th:value="${className}" required placeholder="例如：Software Engineering 1">
+            <button type="submit">查询</button>
+        </form>
+    </div>
+
+    <div th:if="${className != null && statistics != null && statistics.total > 0}" class="statistics-card">
+        <h2 th:text="${className + ' 班级考勤概况'}"></h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>出勤情况</h3>
+                <p>总记录数: <span th:text="${statistics.total}">0</span></p>
+                <p>正常出勤率: <span th:text="${statistics.normalRate}">0</span>%</p>
             </div>
-            
-            <div class="button-container" style="margin-top: 15px; text-align: right;">
-                <a th:href="@{/attendance/classAttendanceDetail(className=${className})}" class="detail-button">查看详细统计 →</a>
+            <div class="stat-item">
+                <h3>详细统计</h3>
+                <p>正常: <span th:text="${statistics.normalCount}" class="status-normal">0</span></p>
+                <p>迟到: <span th:text="${statistics.lateCount}" class="status-warning">0</span></p>
+                <p>早退: <span th:text="${statistics.earlyCount}" class="status-warning">0</span></p>
+                <p>缺席: <span th:text="${statistics.absentCount}" class="status-warning">0</span></p>
+                <p>请假: <span th:text="${statistics.leaveCount}" class="status-leave">0</span></p>
             </div>
         </div>
-        
-        <div th:if="${className != null && (statistics == null || statistics.total == 0)}" class="statistics-card empty-data">
-            <h2>未找到班级考勤数据</h2>
-            <p>没有找到"<span th:text="${className}"></span>"班级的考勤记录，请确认班级名称是否正确或者该班级是否有考勤记录。</p>
-        </div>
-        
-        <div th:if="${className != null && statistics != null && statistics.total > 0}" class="chart-container" style="position: relative; height:40vh; margin: 20px auto;">
-            <canvas id="attendanceChart"></canvas>
-        </div>
-        
-        <div th:if="${className != null && statistics != null && statistics.statusCounts != null && !statistics.statusCounts.isEmpty()}" class="statistics-card">
-            <h2>考勤状态统计</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>状态</th>
-                        <th>数量</th>
-                        <th>百分比</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="statusItem : ${statistics.statusCounts}">
-                        <td th:with="statusValue=${statusItem.status}"
-                            th:text="${statusValue}"
-                            th:class="${statusValue == '正常' ? 'status-normal' : 
-                                    (statusValue == '请假' ? 'status-leave' : 'status-warning')}">
-                            正常
-                        </td>
-                        <td th:with="countValue=${statusItem.count != null ? statusItem.count : 0}"
-                            th:text="${countValue}">0</td>
-                        <td th:with="countValue=${statusItem.count != null ? statusItem.count : 0}"
-                            th:text="${#numbers.formatDecimal(countValue * 100 / statistics.total, 1, 1) + '%'}">0%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="button-container">
-            <a th:href="@{/attendance/record}" class="button">录入考勤</a>
-            <a th:href="@{/attendance/dateAttendance}" class="button">日期考勤查询</a>
-            <a th:href="@{/index}" class="button">返回首页</a>
+
+        <div class="button-container" style="margin-top: 15px; text-align: right;">
+            <a th:href="@{/attendance/classAttendanceDetail(className=${className})}" class="detail-button">查看详细统计 →</a>
         </div>
     </div>
-    
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        // 准备图表数据
-        var statistics = /*[[${statistics != null ? statistics : {}}]]*/ {};
-        
-        if (statistics && statistics.total > 0) {
-            // 考勤状态统计
-            var labels = ['正常', '迟到', '早退', '缺席', '请假'];
-            var data = [
-                statistics.normalCount || 0,
-                statistics.lateCount || 0,
-                statistics.earlyCount || 0,
-                statistics.absentCount || 0,
-                statistics.leaveCount || 0
-            ];
-            
-            var backgroundColors = [
-                'rgba(76, 217, 100, 0.6)',  // 正常 - 绿色 (apple-success)
-                'rgba(255, 149, 0, 0.6)',   // 迟到 - 橙色
-                'rgba(255, 204, 0, 0.6)',   // 早退 - 黄色
-                'rgba(255, 59, 48, 0.6)',   // 缺席 - 红色 (apple-error)
-                'rgba(0, 113, 227, 0.6)'    // 请假 - 蓝色 (apple-blue)
-            ];
-            
-            // 创建饼图
-            var ctx = document.getElementById('attendanceChart').getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: backgroundColors,
-                        borderColor: [
-                            'rgba(76, 217, 100, 1)',
-                            'rgba(255, 149, 0, 1)',
-                            'rgba(255, 204, 0, 1)',
-                            'rgba(255, 59, 48, 1)',
-                            'rgba(0, 113, 227, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'right'
-                        },
-                        title: {
-                            display: true,
-                            text: '班级考勤状态分布'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    var label = context.label || '';
-                                    var value = context.raw || 0;
-                                    var total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    var percentage = Math.round((value / total) * 100);
-                                    return label + ': ' + value + ' (' + percentage + '%)';
-                                }
+
+    <div th:if="${className != null && (statistics == null || statistics.total == 0)}" class="statistics-card empty-data">
+        <h2>未找到班级考勤数据</h2>
+        <p>没有找到"<span th:text="${className}"></span>"班级的考勤记录，请确认班级名称是否正确或者该班级是否有考勤记录。</p>
+    </div>
+
+    <!-- HTML 结构保持不变，但其样式已在 <style> 中被修改 -->
+    <div th:if="${className != null && statistics != null && statistics.total > 0}" class="chart-container">
+        <canvas id="attendanceChart"></canvas>
+    </div>
+
+    <div th:if="${className != null && statistics != null && statistics.statusCounts != null && !statistics.statusCounts.isEmpty()}" class="statistics-card">
+        <h2>考勤状态统计</h2>
+        <table>
+            <thead><tr><th>状态</th><th>数量</th><th>百分比</th></tr></thead>
+            <tbody>
+            <tr th:each="statusItem : ${statistics.statusCounts}">
+                <td th:with="statusValue=${statusItem.status}"
+                    th:text="${statusValue}"
+                    th:class="${statusValue == '正常' ? 'status-normal' : (statusValue == '请假' ? 'status-leave' : 'status-warning')}">
+                </td>
+                <td th:text="${statusItem.count != null ? statusItem.count : 0}"></td>
+                <td th:text="${#numbers.formatDecimal((statusItem.count != null ? statusItem.count : 0) * 100.0 / statistics.total, 1, 1) + '%'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-container">
+        <a th:href="@{/attendance/record}" class="button">录入考勤</a>
+        <a th:href="@{/attendance/dateAttendance}" class="button">日期考勤查询</a>
+        <a th:href="@{/index}" class="button">返回首页</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var statistics = /*[[${statistics != null ? statistics : {}}]]*/ {};
+
+    if (statistics && statistics.total > 0) {
+        var labels = ['正常', '迟到', '早退', '缺席', '请假'];
+        var data = [
+            statistics.normalCount || 0, statistics.lateCount || 0,
+            statistics.earlyCount || 0, statistics.absentCount || 0,
+            statistics.leaveCount || 0
+        ];
+
+        var ctx = document.getElementById('attendanceChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        'rgba(76, 217, 100, 0.6)', 'rgba(255, 149, 0, 0.6)',
+                        'rgba(255, 204, 0, 0.6)', 'rgba(255, 59, 48, 0.6)',
+                        'rgba(0, 113, 227, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(76, 217, 100, 1)', 'rgba(255, 149, 0, 1)',
+                        'rgba(255, 204, 0, 1)', 'rgba(255, 59, 48, 1)',
+                        'rgba(0, 113, 227, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                // 关键修改 3: 确保 maintainAspectRatio 为 false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    title: { display: true, text: '班级考勤状态分布' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var value = context.raw || 0;
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                if (total === 0) return label + ': 0 (0%)';
+                                var percentage = Math.round((value / total) * 100);
+                                return label + ': ' + value + ' (' + percentage + '%)';
                             }
                         }
                     }
                 }
-            });
-        }
-        /*]]>*/
-    </script>
+            }
+        });
+    }
+    /*]]>*/
+</script>
 </body>
-</html> 
+</html>

@@ -31,28 +31,29 @@
         <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
             <div class="card">
                 <h3 style="margin-top: 0; font-size: 22px;">教师功能</h3>
-                <div style="margin-bottom: 16px;">
-                    <a href="/grade/insert" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                <!-- 将 margin-bottom 从 a 标签移到父 div 上，便于控制最后一个元素 -->
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="/grade/insert" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">成绩录入</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/grade/findAll" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                    <a href="/grade/findAll" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">全部成绩</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/stuInfo/allInfo" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                    <a href="/stuInfo/allInfo" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">全部信息</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/attendance/record" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                    <a href="/attendance/record" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">考勤录入</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/attendance/classAttendance" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                    <a href="/attendance/classAttendance" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">班级考勤统计</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/attendance/dateAttendance" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; margin-bottom: 12px; transition: all 0.2s ease;">
+                    <a href="/attendance/dateAttendance" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">日期考勤查询</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
@@ -60,6 +61,13 @@
                         <span style="font-weight: 500;">文件管理</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
+                    <!-- ==================== 关键修改在这里 ==================== -->
+                    <!-- 这个是最后一个链接，我们移除了 margin-bottom -->
+                    <a href="/attendance/studentSearch" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
+                        <span style="font-weight: 500;">学生考勤查询</span>
+                        <span style="float: right; color: var(--apple-light-text);">→</span>
+                    </a>
+                    <!-- ======================================================== -->
                 </div>
             </div>
         </div> <!-- 左侧卡片容器结束 -->

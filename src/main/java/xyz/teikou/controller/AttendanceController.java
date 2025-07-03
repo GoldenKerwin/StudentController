@@ -20,6 +20,7 @@ import xyz.teikou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -33,16 +34,16 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/attendance")
 public class AttendanceController {
-    
+
     @Autowired
     private AttendanceService attendanceService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private StuInfoService stuInfoService;
-    
+
     /**
      * 跳转到录入考勤页面
      */
@@ -54,7 +55,7 @@ public class AttendanceController {
         mv.addObject("students", students != null ? students : Collections.emptyList());
         return mv;
     }
-    
+
     /**
      * 保存考勤记录
      */
@@ -62,7 +63,6 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView saveAttendance(@Valid AttendanceForm form, BindingResult result, HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
-        
         if (result.hasErrors()) {
             mv.setViewName("recordAttendance");
             List<User> students = userService.findAllUser();
@@ -70,12 +70,10 @@ public class AttendanceController {
             mv.addObject("info", "表单验证失败，请检查输入");
             return mv;
         }
-        
         User user = (User) request.getSession().getAttribute("user");
         Attendance attendance = new Attendance();
         BeanUtils.copyProperties(form, attendance);
         attendance.setOperator(user != null ? user.getName() : "未知用户");
-        
         try {
             attendanceService.addAttendance(attendance);
             mv.setViewName("success");
@@ -88,7 +86,7 @@ public class AttendanceController {
         }
         return mv;
     }
-    
+
     /**
      * 学生查看自己的考勤记录
      */
@@ -97,38 +95,42 @@ public class AttendanceController {
     public ModelAndView myAttendance(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView("myAttendance");
         User user = (User) request.getSession().getAttribute("user");
-        
         if (user == null) {
             mv.addObject("statistics", null);
             return mv;
         }
-        
         String schNumber = user.getSchNumber();
         Map<String, Object> statistics = attendanceService.getAttendanceStatistics(schNumber);
         mv.addObject("statistics", statistics);
         return mv;
     }
-    
+
     /**
+     * ==================== 关键修改 1: 增强此方法以传递学生姓名 ====================
      * 教师查看学生考勤记录
      */
     @RequestMapping("/studentAttendance")
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView studentAttendance(@RequestParam("schNumber") String schNumber) {
         ModelAndView mv = new ModelAndView("studentAttendance");
-        
         if (schNumber == null || schNumber.isEmpty()) {
             mv.addObject("statistics", null);
             mv.addObject("schNumber", "");
             return mv;
         }
-        
+
+        // 新增逻辑：通过学号查询学生信息，以便在详情页显示姓名
+        User student = userService.findUserBySchNumber(schNumber);
+        if (student != null) {
+            mv.addObject("studentName", student.getName());
+        }
+
         Map<String, Object> statistics = attendanceService.getAttendanceStatistics(schNumber);
         mv.addObject("statistics", statistics);
         mv.addObject("schNumber", schNumber);
         return mv;
     }
-    
+
     /**
      * 教师查看班级考勤统计
      */
@@ -136,16 +138,14 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView classAttendance(@RequestParam(value = "className", required = false) String className) {
         ModelAndView mv = new ModelAndView("classAttendance");
-        
         if (className != null && !className.isEmpty()) {
             Map<String, Object> statistics = attendanceService.getClassAttendanceStatistics(className);
             mv.addObject("statistics", statistics);
             mv.addObject("className", className);
         }
-        
         return mv;
     }
-    
+
     /**
      * 教师查看班级考勤详细统计
      */
@@ -153,36 +153,27 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView classAttendanceDetail(@RequestParam(value = "className", required = false) String className) {
         ModelAndView mv = new ModelAndView("classAttendanceDetail");
-        
         if (className != null && !className.isEmpty()) {
-            // 获取考勤统计数据
             Map<String, Object> statistics = attendanceService.getClassAttendanceStatistics(className);
             mv.addObject("statistics", statistics);
-            
-            // 获取考勤记录列表
             List<Attendance> attendanceList = attendanceService.getClassAttendance(className);
             mv.addObject("attendanceList", attendanceList != null ? attendanceList : Collections.emptyList());
-            
-            // 获取学生姓名映射
             List<StuInfo> students = stuInfoService.findStudentsByClass(className);
             Map<String, String> studentNames = Collections.emptyMap();
-            
             if (students != null && !students.isEmpty()) {
                 studentNames = students.stream()
                         .collect(Collectors.toMap(
-                            StuInfo::getSchNumber, 
-                            StuInfo::getName,
-                            (existing, replacement) -> existing // 如果有重复的学号，保留第一个
+                                StuInfo::getSchNumber,
+                                StuInfo::getName,
+                                (existing, replacement) -> existing
                         ));
             }
-            
             mv.addObject("studentNames", studentNames);
             mv.addObject("className", className);
         }
-        
         return mv;
     }
-    
+
     /**
      * 教师查看日期考勤记录
      */
@@ -190,16 +181,18 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView dateAttendance(@RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
         ModelAndView mv = new ModelAndView("dateAttendance");
-        
         if (date != null) {
             List<Attendance> attendanceList = attendanceService.getAttendanceByDate(date);
+            // 修正：如果列表为空，也应该传递一个空列表而不是null
             mv.addObject("attendanceList", attendanceList != null ? attendanceList : Collections.emptyList());
-            mv.addObject("date", date);
+            if (attendanceList == null || attendanceList.isEmpty()) {
+                mv.addObject("message", "没有找到 " + new SimpleDateFormat("yyyy-MM-dd").format(date) + " 的考勤记录");
+            }
+            mv.addObject("queryDate", new SimpleDateFormat("yyyy-MM-dd").format(date));
         }
-        
         return mv;
     }
-    
+
     /**
      * 教师删除考勤记录
      */
@@ -207,10 +200,8 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView deleteAttendance(@RequestParam("id") Integer id, @RequestParam(value = "returnUrl", required = false) String returnUrl) {
         ModelAndView mv = new ModelAndView();
-        
         try {
             attendanceService.deleteAttendance(id);
-            
             if (returnUrl != null && !returnUrl.isEmpty()) {
                 mv.setViewName("redirect:" + returnUrl);
             } else {
@@ -221,10 +212,9 @@ public class AttendanceController {
             mv.setViewName("error");
             mv.addObject("message", "删除考勤记录失败，请稍后重试");
         }
-        
         return mv;
     }
-    
+
     /**
      * 跳转到编辑考勤页面
      */
@@ -232,26 +222,22 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView editAttendance(@RequestParam("id") Integer id) {
         ModelAndView mv = new ModelAndView("editAttendance");
-        
         try {
             Attendance attendance = attendanceService.getAttendanceById(id);
-            
             if (attendance == null) {
                 mv.setViewName("error");
                 mv.addObject("message", "未找到该考勤记录，请检查ID是否正确");
                 return mv;
             }
-            
             mv.addObject("attendance", attendance);
         } catch (Exception e) {
             log.error("获取考勤记录失败", e);
             mv.setViewName("error");
             mv.addObject("message", "获取考勤记录失败，请稍后重试");
         }
-        
         return mv;
     }
-    
+
     /**
      * 更新考勤记录
      */
@@ -259,20 +245,17 @@ public class AttendanceController {
     @RequiresPermissions("teacher:attendance:manage")
     public ModelAndView updateAttendance(@Valid AttendanceForm form, BindingResult result, HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
-        
         if (result.hasErrors()) {
             mv.setViewName("editAttendance");
             mv.addObject("attendance", form);
             mv.addObject("info", "表单验证失败，请检查输入");
             return mv;
         }
-        
         try {
             User user = (User) request.getSession().getAttribute("user");
             Attendance attendance = new Attendance();
             BeanUtils.copyProperties(form, attendance);
             attendance.setOperator(user != null ? user.getName() : "未知用户");
-            
             attendanceService.updateAttendance(attendance);
             mv.setViewName("success");
         } catch (Exception e) {
@@ -281,7 +264,16 @@ public class AttendanceController {
             mv.addObject("attendance", form);
             mv.addObject("info", "更新考勤记录失败，请稍后重试");
         }
-        
         return mv;
     }
-} 
+
+    /**
+     * ==================== 关键修改 2: 新增此方法 ====================
+     * 新增：跳转到学生考勤查询的搜索页面
+     */
+    @RequestMapping("/studentSearch")
+    @RequiresPermissions("teacher:attendance:manage")
+    public String studentSearchPage() {
+        return "studentAttendanceSearch"; // 返回搜索页面的HTML文件名
+    }
+}

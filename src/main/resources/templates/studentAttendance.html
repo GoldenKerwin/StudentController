@@ -4,291 +4,169 @@
     <meta charset="UTF-8">
     <title>学生考勤记录</title>
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <style>
-        .student-info {
+        .card-common {
             background-color: #fff;
             border-radius: var(--apple-radius);
             box-shadow: var(--apple-shadow);
             padding: 24px;
-            margin-bottom: 24px;
-        }
-        .attendance-statistics {
-            background-color: #fff;
-            border-radius: var(--apple-radius);
-            box-shadow: var(--apple-shadow);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .summary {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .statistic-item {
-            flex: 1;
-            min-width: 100px;
-            margin: 10px;
-            text-align: center;
-            padding: 15px;
-            background-color: var(--apple-gray);
-            border-radius: var(--apple-radius);
-        }
-        .statistic-item .label {
-            font-size: 14px;
-            color: var(--apple-light-text);
-            margin-bottom: 8px;
-        }
-        .statistic-item .value {
-            font-size: 24px;
-            font-weight: 500;
+            margin: 24px auto;
+            max-width: 900px;
         }
         .chart-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: var(--apple-radius);
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            height: 300px;
+            height: 400px;
+            position: relative;
         }
-        .attendance-list {
-            background-color: #fff;
-            border-radius: var(--apple-radius);
-            box-shadow: var(--apple-shadow);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .attendance-list table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
+        .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .stat-item { flex: 1; min-width: 200px; padding: 16px; }
+        .attendance-list table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .attendance-list th {
-            background-color: var(--apple-gray);
-            padding: 16px;
-            text-align: left;
-            font-weight: 500;
-            color: var(--apple-dark);
-            border-bottom: 1px solid var(--apple-border);
+            background-color: var(--apple-gray); padding: 16px; text-align: left;
+            font-weight: 500; color: var(--apple-dark); border-bottom: none;
         }
-        .attendance-list td {
-            padding: 16px;
-            border-bottom: 1px solid var(--apple-border);
-        }
-        .attendance-list tr:last-child td {
-            border-bottom: none;
-        }
-        .attendance-list tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
-        .status-normal {
-            color: var(--apple-success);
-        }
-        .status-leave {
-            color: #0071e3;
-        }
-        .status-warning {
-            color: var(--apple-error);
-        }
-        .button-container {
-            margin-top: 20px;
-            text-align: center;
-        }
+        .attendance-list td { padding: 16px; border-bottom: 1px solid var(--apple-border); }
+        .attendance-list tr:last-child td { border-bottom: none; }
+        .status-normal { color: var(--apple-success); }
+        .status-leave { color: #0071e3; }
+        .status-warning { color: var(--apple-error); }
+        .empty-data { text-align: center; padding: 40px 0; color: var(--apple-light-text); }
+        .button-container { margin-top: 24px; text-align: center; }
         .button {
-            display: inline-block;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
-            border-radius: var(--apple-radius);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            margin-right: 12px;
-            background-color: var(--apple-blue);
-            color: white;
-            text-decoration: none;
+            display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500;
+            text-align: center; border-radius: var(--apple-radius); cursor: pointer;
+            transition: all 0.2s ease; border: none; margin-right: 12px;
+            background-color: var(--apple-blue); color: white; text-decoration: none;
         }
-        .button:hover {
-            background-color: var(--apple-blue-hover);
-        }
-        .button.small {
-            padding: 6px 12px;
-            font-size: 14px;
-        }
-        .button.danger {
-            background-color: var(--apple-error);
-        }
-        .button.danger:hover {
-            background-color: #ff2d20;
-        }
-        .empty-data {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--apple-light-text);
-        }
+        .button.small { padding: 6px 12px; font-size: 14px; }
+        .button.danger { background-color: var(--apple-error); }
+        .button.danger:hover { background-color: #d32f2f; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3>学生考勤记录</h3>
-        
-        <div class="student-info">
-            <h2>学生信息</h2>
-            <p>学号: <span th:text="${schNumber}">2024001</span></p>
-        </div>
-        
-        <div th:if="${statistics != null && statistics.total > 0}">
-            <div class="attendance-statistics">
-                <h2>考勤统计</h2>
-                <div class="summary">
-                    <div class="statistic-item">
-                        <div class="label">总记录数</div>
-                        <div class="value" th:text="${statistics.total}">0</div>
-                    </div>
-                    <div class="statistic-item">
-                        <div class="label">正常出勤</div>
-                        <div class="value status-normal" th:text="${statistics.normalCount}">0</div>
-                    </div>
-                    <div class="statistic-item">
-                        <div class="label">迟到</div>
-                        <div class="value status-warning" th:text="${statistics.lateCount}">0</div>
-                    </div>
-                    <div class="statistic-item">
-                        <div class="label">早退</div>
-                        <div class="value status-warning" th:text="${statistics.earlyCount}">0</div>
-                    </div>
-                    <div class="statistic-item">
-                        <div class="label">缺席</div>
-                        <div class="value status-warning" th:text="${statistics.absentCount}">0</div>
-                    </div>
-                    <div class="statistic-item">
-                        <div class="label">请假</div>
-                        <div class="value status-leave" th:text="${statistics.leaveCount}">0</div>
-                    </div>
-                    <div class="statistic-item">
-                        <div class="label">出勤率</div>
-                        <div class="value" th:text="${statistics.normalRate + '%'}">0%</div>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <canvas id="attendanceChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="attendance-list" th:if="${statistics.attendanceList != null && !statistics.attendanceList.isEmpty()}">
-                <h2>考勤记录</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>日期</th>
-                            <th>课程</th>
-                            <th>状态</th>
-                            <th>备注</th>
-                            <th>记录人</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="attendance : ${statistics.attendanceList}">
-                            <td th:text="${#dates.format(attendance.date, 'yyyy-MM-dd')}">2023-01-01</td>
-                            <td th:text="${attendance.course}">课程名称</td>
-                            <td th:text="${attendance.status}" 
-                                th:class="${attendance.status == '正常' ? 'status-normal' : 
-                                        (attendance.status == '请假' ? 'status-leave' : 'status-warning')}">
-                                正常
-                            </td>
-                            <td th:text="${attendance.remark}">备注</td>
-                            <td th:text="${attendance.operator}">操作人</td>
-                            <td>
-                                <a th:href="@{/attendance/edit(id=${attendance.id})}" class="button small">编辑</a>
-                                <a th:href="@{/attendance/delete(id=${attendance.id}, returnUrl='/attendance/studentAttendance?schNumber=' + ${schNumber})}" 
-                                   class="button small danger" onclick="return confirm('确定要删除这条记录吗？')">删除</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div th:if="${statistics == null || statistics.total == 0}" class="empty-data">
-            <h2>暂无考勤记录</h2>
-            <p>该学生目前还没有任何考勤记录。</p>
-        </div>
-        
-        <div class="button-container">
-            <a th:href="@{/attendance/record}" class="button">录入考勤</a>
-            <a th:href="@{/attendance/classAttendance}" class="button">班级考勤统计</a>
-            <a th:href="@{/index}" class="button">返回首页</a>
-        </div>
+<div class="container">
+    <h3>学生考勤记录</h3>
+    <div class="card-common">
+        <h2 th:text="${studentName != null ? studentName : '学生'} + ' (学号: ' + ${schNumber} + ')'">学生信息</h2>
     </div>
-    
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var statistics = /*[[${statistics}]]*/ {};
-        
-        if (statistics && statistics.total > 0) {
-            // 获取统计数据
-            var normalCount = statistics.normalCount || 0;
-            var lateCount = statistics.lateCount || 0;
-            var earlyCount = statistics.earlyCount || 0;
-            var absentCount = statistics.absentCount || 0;
-            var leaveCount = statistics.leaveCount || 0;
-            
-            // 创建饼图
-            var ctx = document.getElementById('attendanceChart').getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['正常', '迟到', '早退', '缺席', '请假'],
-                    datasets: [{
-                        label: '考勤状态统计',
-                        data: [normalCount, lateCount, earlyCount, absentCount, leaveCount],
-                        backgroundColor: [
-                            'rgba(76, 217, 100, 0.6)',  // 正常 - 绿色 (apple-success)
-                            'rgba(255, 149, 0, 0.6)',   // 迟到 - 橙色
-                            'rgba(255, 204, 0, 0.6)',   // 早退 - 黄色
-                            'rgba(255, 59, 48, 0.6)',   // 缺席 - 红色 (apple-error)
-                            'rgba(0, 113, 227, 0.6)'    // 请假 - 蓝色 (apple-blue)
-                        ],
-                        borderColor: [
-                            'rgba(76, 217, 100, 1)',
-                            'rgba(255, 149, 0, 1)',
-                            'rgba(255, 204, 0, 1)',
-                            'rgba(255, 59, 48, 1)',
-                            'rgba(0, 113, 227, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'right'
-                        },
-                        title: {
-                            display: true,
-                            text: '考勤状态分布'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    var label = context.label || '';
-                                    var value = context.raw || 0;
-                                    var total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    var percentage = Math.round((value / total) * 100);
-                                    return label + ': ' + value + ' (' + percentage + '%)';
-                                }
+
+    <!-- 只有在有数据时才显示统计和列表 -->
+    <th:block th:if="${statistics != null && statistics.total > 0}">
+        <!-- 考勤统计概况卡片 -->
+        <div class="card-common">
+            <h2>考勤统计概况</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>出勤情况</h3>
+                    <p>总记录数: <span th:text="${statistics.total}">0</span></p>
+                    <p>正常出勤率: <span th:text="${statistics.normalRate}">0</span>%</p>
+                </div>
+                <div class="stat-item">
+                    <h3>详细统计</h3>
+                    <p>正常: <span th:text="${statistics.normalCount}" class="status-normal">0</span></p>
+                    <p>迟到: <span th:text="${statistics.lateCount}" class="status-warning">0</span></p>
+                    <p>早退: <span th:text="${statistics.earlyCount}" class="status-warning">0</span></p>
+                    <p>缺席: <span th:text="${statistics.absentCount}" class="status-warning">0</span></p>
+                    <p>请假: <span th:text="${statistics.leaveCount}" class="status-leave">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表卡片 -->
+        <div class="card-common chart-container">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+
+        <!-- 考勤记录列表卡片 -->
+        <div class="card-common attendance-list">
+            <h2>考勤记录列表</h2>
+            <table>
+                <thead>
+                <tr><th>日期</th><th>课程</th><th>状态</th><th>备注</th><th>记录人</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="attendance : ${statistics.attendanceList}">
+                    <td th:text="${#dates.format(attendance.date, 'yyyy-MM-dd')}"></td>
+                    <td th:text="${attendance.course}"></td>
+                    <td th:text="${attendance.status}"
+                        th:class="${attendance.status == '正常' ? 'status-normal' : (attendance.status == '请假' ? 'status-leave' : 'status-warning')}">
+                    </td>
+                    <td th:text="${attendance.remark}"></td>
+                    <td th:text="${attendance.operator}"></td>
+                    <td>
+                        <a th:href="@{/attendance/edit(id=${attendance.id})}" class="button small">编辑</a>
+                        <a th:href="@{/attendance/delete(id=${attendance.id}, returnUrl='/attendance/studentAttendance?schNumber=' + ${schNumber})}"
+                           class="button small danger" onclick="return confirm('确定要删除这条记录吗？')">删除</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </th:block>
+
+    <!-- 如果没有数据，显示提示信息 -->
+    <div th:if="${statistics == null || statistics.total == 0}" class="card-common empty-data">
+        <h2>暂无考勤记录</h2>
+        <p>该学生目前还没有任何考勤记录。</p>
+    </div>
+
+    <div class="button-container">
+        <a th:href="@{/attendance/record}" class="button">录入考勤</a>
+        <a th:href="@{/attendance/classAttendance}" class="button">班级考勤统计</a>
+        <a th:href="@{/index}" class="button">返回首页</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var statistics = /*[[${statistics}]]*/ {};
+
+    if (statistics && statistics.total > 0) {
+        var labels = ['正常', '迟到', '早退', '缺席', '请假'];
+        var data = [
+            statistics.normalCount || 0, statistics.lateCount || 0,
+            statistics.earlyCount || 0, statistics.absentCount || 0,
+            statistics.leaveCount || 0
+        ];
+
+        var ctx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '考勤状态统计', data: data,
+                    backgroundColor: [
+                        'rgba(76, 217, 100, 0.7)', 'rgba(255, 149, 0, 0.7)',
+                        'rgba(255, 204, 0, 0.7)', 'rgba(255, 59, 48, 0.7)',
+                        'rgba(0, 113, 227, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    title: { display: true, text: '考勤状态分布' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var value = context.raw || 0;
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                if (total === 0) return label + ': 0 (0%)';
+                                var percentage = Math.round((value / total) * 100);
+                                return label + ': ' + value + ' (' + percentage + '%)';
                             }
                         }
                     }
                 }
-            });
-        }
-        /*]]>*/
-    </script>
+            }
+        });
+    }
+    /*]]>*/
+</script>
 </body>
-</html> 
+</html>

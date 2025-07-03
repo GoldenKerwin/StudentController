@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>查询所有学生成绩</title>
     <link rel="stylesheet" href="/css/apple-style.css">
+    <!-- ==================== 关键修改 1: 添加新样式 ==================== -->
+    <style>
+        .card-header {
+            display: flex;
+            justify-content: space-between; /* 让标题和按钮分别靠在两边 */
+            align-items: center;
+            margin-bottom: 20px; /* 标题和表格之间的间距 */
+        }
+        .card-header h3 {
+            margin: 0; /* 移除标题的默认边距 */
+            font-size: 22px;
+        }
+        .action-button {
+            background-color: var(--apple-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--apple-radius);
+            cursor: pointer;
+            text-decoration: none; /* 去掉链接下划线 */
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .action-button:hover {
+            background-color: var(--apple-blue-hover);
+        }
+    </style>
+    <!-- ========================================================== -->
 </head>
 <body>
 <div class="header">
@@ -58,7 +87,14 @@
     </div>
     <div class="row">
         <div class="card">
-            <h3 style="margin-top: 0; font-size: 22px;">查询结果</h3>
+            <!-- ==================== 关键修改 2: 修改HTML结构 ==================== -->
+            <!-- 使用新的 card-header 结构来包裹标题和按钮 -->
+            <div class="card-header">
+                <h3>查询结果</h3>
+                <a th:href="@{/grade/classStatistics}" class="action-button">班级成绩统计分析</a>
+            </div>
+            <!-- ================================================================= -->
+
             <div th:if="${errorMsg != null}" class="alert alert-warning" th:text="${errorMsg}"></div>
             <div th:if="${grades != null && grades.size() == 0}" class="alert alert-info">暂无成绩数据</div>
             <table class="table" th:if="${grades != null && grades.size() > 0}">
@@ -73,18 +109,27 @@
                 </thead>
                 <tbody>
                 <tr th:each="grade:${grades}">
-                    <td th:text="${grade.getSchNumber()}"></td>
-                    <td th:text="${grade.getSubName()}"></td>
-                    <td th:text="${grade.getResults()}"></td>
-                    <td th:text="${grade.getTestNo()}"></td>
+                    <!-- 使用属性访问，更符合Thymeleaf规范 -->
+                    <td th:text="${grade.schNumber}"></td>
+                    <td th:text="${grade.subName}"></td>
+                    <td th:text="${grade.results}"></td>
+                    <td th:text="${grade.testNo}"></td>
                     <td>
-                        <a th:href="@{/grade/updateGrade(id=${grade.getId()})}" style="color: var(--apple-blue); text-decoration: none;">修改</a>
+                        <a th:href="@{/grade/updateGrade(id=${grade.id})}" style="color: var(--apple-blue); text-decoration: none;">修改</a>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- ==================== 关键修改 3: 删除底部的按钮区域 ==================== -->
+    <!--
+    <div class="page-actions">
+        <a th:href="@{/grade/classStatistics}" class="btn btn-primary">班级成绩统计分析</a>
+    </div>
+    -->
+    <!-- ================================================================= -->
 </div>
 </body>
 </html>

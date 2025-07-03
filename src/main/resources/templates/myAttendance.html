@@ -17,7 +17,7 @@
         .chart-container {
             height: 400px;
             position: relative;
-
+        }
         .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; }
         .stat-item { flex: 1; min-width: 200px; padding: 16px; }
         .attendance-list table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -68,7 +68,6 @@
         </div>
 
         <!-- 卡片2: 考勤状态分布图 -->
-        <!-- HTML结构保持不变，但其样式已在<style>中被修正 -->
         <div class="card-common chart-container">
             <canvas id="attendanceChart"></canvas>
         </div>
@@ -102,14 +101,17 @@
         <p>目前还没有任何考勤记录，请等待教师录入。</p>
     </div>
 
-    <div class="button-container">
-        <a th:href="@{/index}" class="button">返回首页</a>
-    </div>
+    <!-- ==================== 关键修改：已删除包含“返回首页”按钮的 div ==================== -->
+
+    <!-- 原来的代码块已被移除 -->
+
+    <!-- ==================================================================================== -->
+
 </div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // JavaScript 部分保持不变，它会自动适应修正后的容器
+    // JavaScript 部分保持不变
     var statistics = /*[[${statistics}]]*/ {};
     if (statistics && statistics.total > 0) {
         var ctx = document.getElementById('attendanceChart').getContext('2d');
