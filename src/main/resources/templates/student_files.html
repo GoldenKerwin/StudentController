@@ -5,6 +5,16 @@
     <title>课程文件与作业</title>
     <link rel="stylesheet" href="/css/apple-style.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- 1. 添加 CSS 样式修复UI问题 -->
+    <style>
+        .table th {
+            border-bottom: none !important; /* 去除表头下方的横线 */
+        }
+        /* 隐藏文件输入框，但保留其功能 */
+        .hidden-file-input {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -56,7 +66,12 @@
                 <td th:text="${hw.courseName}"></td>
                 <td th:text="${hw.originalFilename}"></td>
                 <td th:text="${#temporals.format(hw.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                <td><a th:href="@{/file/download/{id}(id=${hw.id})}" class="btn btn-sm btn-default">下载</a></td>
+                <td>
+                    <a th:href="@{/file/download/{id}(id=${hw.id})}" class="btn btn-sm btn-default">下载</a>
+                    <!-- 2. 添加更新按钮和对应的隐藏文件输入框 -->
+                    <button type="button" class="btn btn-sm btn-primary update-btn" th:data-file-id="${hw.id}">更新</button>
+                    <input type="file" class="hidden-file-input" th:data-target-id="${hw.id}">
+                </td>
             </tr>
             <tr th:if="${#lists.isEmpty(myHomeworks)}">
                 <td colspan="4" style="text-align: center;">您还未提交任何作业</td>
@@ -69,23 +84,30 @@
     <div class="card">
         <h3>已批改的作业</h3>
         <table class="table">
-            <thead><tr><th>课程</th><th>文件名</th><th>操作</th></tr></thead>
+            <!-- 3. 修复表头，增加“上传时间” -->
+            <thead><tr><th>课程</th><th>文件名</th><th>上传时间</th><th>操作</th></tr></thead>
             <tbody>
             <tr th:each="graded : ${gradedHomeworks}">
+                <!-- 确保课程名称能正确显示 -->
                 <td th:text="${graded.courseName}"></td>
                 <td th:text="${graded.originalFilename}"></td>
+                <!-- 3. 新增显示上传时间 -->
+                <td th:text="${#temporals.format(graded.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td><a th:href="@{/file/download/{id}(id=${graded.id})}" class="btn btn-sm btn-default">下载</a></td>
             </tr>
             <tr th:if="${#lists.isEmpty(gradedHomeworks)}">
-                <td colspan="3" style="text-align: center;">暂无已批改的作业</td>
+                <!-- 3. colspan 调整为4 -->
+                <td colspan="4" style="text-align: center;">暂无已批改的作业</td>
             </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- 4. 添加和修改 JavaScript 逻辑 -->
 <script>
     $(document).ready(function() {
+        // 处理作业上传的 AJAX
         $('#homeworkUploadForm').on('submit', function(event) {
             event.preventDefault();
             var formData = new FormData(this);
@@ -105,6 +127,43 @@
                     alert('上传失败，服务器发生错误！');
                 }
             });
+        });
+
+        // 新增：处理点击“更新”按钮的逻辑
+        $('.update-btn').on('click', function() {
+            var fileId = $(this).data('file-id');
+            // 触发对应的隐藏文件输入框的点击事件
+            $('input.hidden-file-input[data-target-id="' + fileId + '"]').click();
+        });
+
+        // 新增：处理文件选择后的自动上传逻辑
+        $('.hidden-file-input').on('change', function() {
+            if (this.files.length > 0) {
+                var fileId = $(this).data('target-id');
+                var file = this.files[0];
+
+                var formData = new FormData();
+                formData.append('fileId', fileId);
+                formData.append('file', file);
+
+                // 发送 AJAX 请求到新的 /file/update 接口
+                $.ajax({
+                    url: '/file/update',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            window.location.reload();
+                        }
+                    },
+                    error: function() {
+                        alert('更新失败，服务器发生错误！');
+                    }
+                });
+            }
         });
     });
 </script>

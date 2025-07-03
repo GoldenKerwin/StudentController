@@ -1,4 +1,4 @@
-package xyz.teikou.controller; // 您的包路径
+package xyz.teikou.controller; // 或您的 impl 包
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
@@ -20,6 +20,7 @@ import xyz.teikou.entity.User;
 import xyz.teikou.service.FileUploadService;
 import xyz.teikou.service.UserService;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,7 +71,12 @@ public class FileController implements FileApiController {
     @Override
     @PostMapping("/upload")
     @ResponseBody
-    public Map<String, Object> handleFileUpload(MultipartFile file, String fileType, String courseName, Integer studentId) {
+    public Map<String, Object> handleFileUpload(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("fileType") String fileType,
+            @RequestParam(value = "courseName", required = false) String courseName,
+            @RequestParam(value = "studentId", required = false) Integer studentId) {
+
         Map<String, Object> response = new HashMap<>();
         User currentUser = (User) SecurityUtils.getSubject().getPrincipal();
         try {
@@ -105,11 +111,10 @@ public class FileController implements FileApiController {
 
     @Override
     @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(Integer fileId) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Integer fileId) {
         User currentUser = (User) SecurityUtils.getSubject().getPrincipal();
         FileUpload fileUpload = fileUploadService.getById(fileId);
 
-        // 为 if 语句添加大括号
         if (fileUpload == null) {
             return ResponseEntity.notFound().build();
         }
@@ -144,5 +149,52 @@ public class FileController implements FileApiController {
             log.error("文件下载失败: fileId=" + fileId, ex);
             return ResponseEntity.status(500).build();
         }
+    }
+
+    @Override
+    @PostMapping("/update")
+    @ResponseBody
+    @RequiresRoles("1")
+    public Map<String, Object> updateHomework(
+            @RequestParam("fileId") Integer fileId,
+            @RequestParam("file") MultipartFile file) {
+
+        Map<String, Object> response = new HashMap<>();
+        User currentUser = (User) SecurityUtils.getSubject().getPrincipal();
+        FileUpload existingFile = fileUploadService.getById(fileId);
+
+        if (existingFile == null || !existingFile.getUploaderId().equals(currentUser.getId())) {
+            response.put("success", false);
+            response.put("message", "权限不足，无法更新此作业！");
+            return response;
+        }
+
+        try {
+            File oldFileOnDisk = new File(existingFile.getFilePath());
+            if (oldFileOnDisk.exists() && !oldFileOnDisk.isDirectory()) {
+                oldFileOnDisk.delete();
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String storedFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+            Path targetLocation = Paths.get(uploadDir).resolve(storedFilename);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            existingFile.setOriginalFilename(originalFilename);
+            existingFile.setStoredFilename(storedFilename);
+            existingFile.setFilePath(targetLocation.toString());
+            existingFile.setFileSize(file.getSize());
+            existingFile.setCreatedAt(LocalDateTime.now());
+            fileUploadService.updateById(existingFile);
+
+            response.put("success", true);
+            response.put("message", "作业已成功更新！");
+
+        } catch (IOException e) {
+            log.error("更新作业失败，fileId: {}", fileId, e);
+            response.put("success", false);
+            response.put("message", "更新失败，服务器发生错误。");
+        }
+        return response;
     }
 }

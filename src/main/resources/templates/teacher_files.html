@@ -5,6 +5,12 @@
     <title>教师文件管理</title>
     <link rel="stylesheet" href="/css/apple-style.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- 1. 添加 CSS 样式修复UI问题 -->
+    <style>
+        .table th {
+            border-bottom: none !important; /* 去除表头下方的横线 */
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -43,6 +49,12 @@
                     <option th:each="student : ${students}" th:value="${student.id}" th:text="${student.name + ' (' + student.schNumber + ')'}"></option>
                 </select>
             </div>
+            <!-- ==================== 2. 新增课程名称输入框 ==================== -->
+            <div class="form-group">
+                <label>课程名称</label>
+                <input type="text" name="courseName" class="form-control" placeholder="请输入对应的课程名称" required>
+            </div>
+            <!-- ========================================================== -->
             <button type="submit" class="btn btn-primary">上传批改</button>
         </form>
     </div>
@@ -89,6 +101,7 @@
 
 <script>
     $(document).ready(function() {
+        // 通用的 AJAX 上传处理函数
         function handleAjaxUpload(formId) {
             $('#' + formId).on('submit', function(event) {
                 event.preventDefault();
@@ -112,6 +125,7 @@
             });
         }
 
+        // 为两个上传表单绑定事件
         handleAjaxUpload('pptUploadForm');
         handleAjaxUpload('gradedHomeworkUploadForm');
     });
