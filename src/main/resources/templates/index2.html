@@ -24,14 +24,10 @@
         <h3>欢迎使用学生管理系统</h3>
     </div>
 
-    <!-- 这是一个 flex 容器，用于并排显示左右两个卡片 -->
     <div class="row" style="display: flex; flex-wrap: wrap; margin: 0 -12px;">
-
-        <!-- 左侧卡片："教师功能" -->
         <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
             <div class="card">
                 <h3 style="margin-top: 0; font-size: 22px;">教师功能</h3>
-                <!-- 将 margin-bottom 从 a 标签移到父 div 上，便于控制最后一个元素 -->
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <a href="/grade/insert" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">成绩录入</span>
@@ -57,17 +53,18 @@
                         <span style="font-weight: 500;">日期考勤查询</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <a href="/file/teacher" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
-                        <span style="font-weight: 500;">文件管理</span>
-                        <span style="float: right; color: var(--apple-light-text);">→</span>
-                    </a>
-                    <!-- ==================== 关键修改在这里 ==================== -->
-                    <!-- 这个是最后一个链接，我们移除了 margin-bottom -->
                     <a href="/attendance/studentSearch" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
                         <span style="font-weight: 500;">学生考勤查询</span>
                         <span style="float: right; color: var(--apple-light-text);">→</span>
                     </a>
-                    <!-- ======================================================== -->
+                    <a href="/grade/subjectStatistics" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
+                        <span style="font-weight: 500;">全校成绩统计</span>
+                        <span style="float: right; color: var(--apple-light-text);">→</span>
+                    </a>
+                    <a href="/file/teacher" style="display: block; padding: 16px; background-color: var(--apple-gray); border-radius: var(--apple-radius); color: var(--apple-dark); text-decoration: none; transition: all 0.2s ease;">
+                        <span style="font-weight: 500;">文件管理</span>
+                        <span style="float: right; color: var(--apple-light-text);">→</span>
+                    </a>
                 </div>
             </div>
         </div> <!-- 左侧卡片容器结束 -->
@@ -77,20 +74,8 @@
             <div class="card">
                 <h3 style="margin-top: 0; font-size: 22px;">系统公告</h3>
                 <table class="table">
-                    <thead>
-                    <tr>
-                        <th>标题</th>
-                        <th>发布部门</th>
-                        <th>发布时间</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>暂时没有新的公告</td>
-                        <td>暂时没有新的公告</td>
-                        <td>暂时没有新的公告</td>
-                    </tr>
-                    </tbody>
+                    <thead><tr><th>标题</th><th>发布部门</th><th>发布时间</th></tr></thead>
+                    <tbody><tr><td>暂时没有新的公告</td><td>暂时没有新的公告</td><td>暂时没有新的公告</td></tr></tbody>
                 </table>
             </div>
         </div> <!-- 右侧卡片容器结束 -->

@@ -10,10 +10,6 @@ import xyz.teikou.service.UserService;
 
 import java.util.List;
 
-/**
- * Creat by TeiKou
- * 2019/10/9 11:51
- */
 @Service
 // 建议继承 ServiceImpl<UserMapper, User> 以便使用更多 mybatis-plus 的便捷方法
 public class UserServiceImpl implements UserService {

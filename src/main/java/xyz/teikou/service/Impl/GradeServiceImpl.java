@@ -12,10 +12,6 @@ import xyz.teikou.service.GradeService;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Creat by TeiKou
- * 2019/10/10 15:13
- */
 @Service
 public class GradeServiceImpl implements GradeService {
     @Autowired
@@ -31,8 +27,8 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public List<Grade> selectMyGrade(String schNumber) {
-        QueryWrapper<Grade> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("sch_number",schNumber);
+        QueryWrapper<Grade> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("sch_number", schNumber);
         List<Grade> grades = gradeMapper.selectList(queryWrapper);
         return grades;
     }
@@ -45,8 +41,8 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public List<Grade> seleOneGrade(String schNumber) {
-        QueryWrapper<Grade> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("sch_number",schNumber);
+        QueryWrapper<Grade> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("sch_number", schNumber);
         List<Grade> grades = gradeMapper.selectList(queryWrapper);
         return grades;
     }
@@ -88,9 +84,17 @@ public class GradeServiceImpl implements GradeService {
         for (Grade grade : grades) {
             double score = grade.getResults();
             total += score;
-            if (score > max) { max = score; bestSubject = grade.getSubName(); }
-            if (score < min) { min = score; weakestSubject = grade.getSubName(); }
-            if (score >= 60) { passCount++; }
+            if (score > max) {
+                max = score;
+                bestSubject = grade.getSubName();
+            }
+            if (score < min) {
+                min = score;
+                weakestSubject = grade.getSubName();
+            }
+            if (score >= 60) {
+                passCount++;
+            }
         }
 
         double average = total / grades.size();
@@ -108,46 +112,38 @@ public class GradeServiceImpl implements GradeService {
         return statistics;
     }
 
-    /**
-     * ==================== 核心修改在这里 ====================
-     */
     @Override
     public Map<String, Object> getClassStatistics(String className) {
         Map<String, Object> statistics = new HashMap<>();
 
-        // 首先获取该班级所有学生
         QueryWrapper<StuInfo> stuQueryWrapper = new QueryWrapper<>();
         stuQueryWrapper.eq("class_name", className);
         List<StuInfo> studentList = stuInfoMapper.selectList(stuQueryWrapper);
 
-        // 即使班级不存在或班级内没有学生，也要返回一个包含 'subjects' 键的 Map
         if (studentList == null || studentList.isEmpty()) {
             statistics.put("classAverage", 0);
             statistics.put("studentCount", 0);
             statistics.put("passRate", 0);
             statistics.put("bestStudent", "无");
-            statistics.put("subjects", Collections.emptyList()); // 确保 subjects 键存在
+            statistics.put("subjects", Collections.emptyList());
             return statistics;
         }
 
         List<String> studentNumbers = studentList.stream().map(StuInfo::getSchNumber).collect(Collectors.toList());
 
-        // 查询这些学生的所有成绩
         QueryWrapper<Grade> gradeQueryWrapper = new QueryWrapper<>();
         gradeQueryWrapper.in("sch_number", studentNumbers);
         List<Grade> allGrades = gradeMapper.selectList(gradeQueryWrapper);
 
-        // 即使班级有学生但没有任何成绩记录，也要返回包含 'subjects' 键的 Map
         if (allGrades == null || allGrades.isEmpty()) {
             statistics.put("classAverage", 0);
             statistics.put("studentCount", studentList.size());
             statistics.put("passRate", 0);
             statistics.put("bestStudent", "无");
-            statistics.put("subjects", Collections.emptyList()); // 确保 subjects 键存在
+            statistics.put("subjects", Collections.emptyList());
             return statistics;
         }
 
-        // --- 后续的计算逻辑保持不变 ---
         double totalScore = allGrades.stream().mapToDouble(Grade::getResults).sum();
         double classAverage = totalScore / allGrades.size();
 
@@ -193,43 +189,112 @@ public class GradeServiceImpl implements GradeService {
             subjectStats.add(subjectStat);
         }
 
-        // 组装结果
         statistics.put("classAverage", Math.round(classAverage * 10) / 10.0);
         statistics.put("studentCount", studentList.size());
         statistics.put("passRate", Math.round(passRate * 10) / 10.0);
         statistics.put("bestStudent", bestStudent);
-        statistics.put("subjects", subjectStats); // 正常情况下，也将 'subjects' 放入
+        statistics.put("subjects", subjectStats);
 
         return statistics;
     }
 
+    /**
+     * ==================== 核心修改 1: 改造此方法以支持筛选和排序 ====================
+     * 注意：您需要同步修改 GradeService 接口中的方法签名。
+     */
+    /**
+     * ==================== 核心修改 1: 改造此方法以支持筛选和排序 ====================
+     */
     @Override
-    public List<Map<String, Object>> getSubjectAverages() {
-        // ... 此方法保持您提供的原样 ...
-        List<Grade> allGrades = this.selectAllGrade();
+    public List<Map<String, Object>> getSubjectAverages(String subjectName, String testNo, String sortField, String sortOrder) {
+        QueryWrapper<Grade> queryWrapper = new QueryWrapper<>();
+
+        if (subjectName != null && !subjectName.isEmpty()) {
+            queryWrapper.like("sub_name", subjectName);
+        }
+        if (testNo != null && !testNo.isEmpty()) {
+            queryWrapper.eq("test_no", testNo);
+        }
+
+        List<Grade> allGrades = gradeMapper.selectList(queryWrapper);
+
         if (allGrades == null || allGrades.isEmpty()) {
             return Collections.emptyList();
         }
+
         Map<String, List<Grade>> gradesBySubject = allGrades.stream()
                 .collect(Collectors.groupingBy(Grade::getSubName));
+
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map.Entry<String, List<Grade>> entry : gradesBySubject.entrySet()) {
             String subject = entry.getKey();
             List<Grade> subjectGrades = entry.getValue();
+
             double average = subjectGrades.stream().mapToDouble(Grade::getResults).average().orElse(0);
             double max = subjectGrades.stream().mapToDouble(Grade::getResults).max().orElse(0);
             double min = subjectGrades.stream().mapToDouble(Grade::getResults).min().orElse(0);
             long passCount = subjectGrades.stream().filter(g -> g.getResults() >= 60).count();
             double passRate = (double) passCount / subjectGrades.size() * 100;
+
             Map<String, Object> subjectStat = new HashMap<>();
             subjectStat.put("subject", subject);
             subjectStat.put("average", Math.round(average * 10) / 10.0);
             subjectStat.put("max", max);
             subjectStat.put("min", min);
-            subjectStat.put("count", subjectGrades.size());
+            subjectStat.put("count", (long) subjectGrades.size());
             subjectStat.put("passRate", Math.round(passRate * 10) / 10.0);
+
             result.add(subjectStat);
         }
+
+        // --- 排序逻辑的修正 ---
+        if (sortField != null && !sortField.isEmpty()) {
+            Comparator<Map<String, Object>> comparator;
+
+            // 判断排序字段是否为数字类型
+            if ("average".equals(sortField) || "max".equals(sortField) || "min".equals(sortField) || "count".equals(sortField) || "passRate".equals(sortField)) {
+                // 如果是数字，创建一个比较 Double 值的比较器
+                comparator = Comparator.comparing(m -> {
+                    Object value = m.get(sortField);
+                    if (value instanceof Number) {
+                        return ((Number) value).doubleValue();
+                    }
+                    return 0.0; // 如果值不是数字类型，默认为0.0进行比较
+                });
+            } else {
+                // 如果是字符串（如科目名称），创建一个比较 String 值的比较器
+                comparator = Comparator.comparing(m ->
+                        String.valueOf(m.getOrDefault(sortField, ""))
+                );
+            }
+
+            // 如果排序顺序是降序，则反转比较器
+            if ("desc".equalsIgnoreCase(sortOrder)) {
+                comparator = comparator.reversed();
+            }
+
+            // 执行排序
+            result.sort(comparator);
+        }
+
         return result;
+    }
+
+    /**
+     * ==================== 核心修改 2: 新增此方法用于获取学期列表 ====================
+     * 注意：您需要同步修改 GradeService 接口中的方法签名。
+     */
+    @Override
+    public List<String> getDistinctTerms() {
+        QueryWrapper<Grade> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("DISTINCT test_no").isNotNull("test_no");
+
+        List<Map<String, Object>> maps = gradeMapper.selectMaps(queryWrapper);
+
+        return maps.stream()
+                .map(m -> (String) m.get("test_no"))
+                .filter(Objects::nonNull) // 过滤掉null值
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,4 @@
 package xyz.teikou;
-
-// 1. 导入 ShiroWebAutoConfiguration 和 ShiroAutoConfiguration
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.boot.autoconfigure.ShiroAutoConfiguration;
 import org.mybatis.spring.annotation.MapperScan;

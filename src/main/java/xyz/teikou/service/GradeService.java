@@ -41,5 +41,8 @@ public interface GradeService {
      * 获取各科目平均分统计
      * @return 各科目平均分列表
      */
-    public List<Map<String, Object>> getSubjectAverages();
+    List<Map<String, Object>> getSubjectAverages(String subjectName, String testNo, String sortField, String sortOrder);
+
+    List<String> getDistinctTerms();
 }
+

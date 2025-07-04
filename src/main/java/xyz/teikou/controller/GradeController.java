@@ -1,11 +1,13 @@
 package xyz.teikou.controller;
 
+import com.google.common.net.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,7 +18,10 @@ import xyz.teikou.service.GradeService;
 import xyz.teikou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -205,15 +210,72 @@ public class GradeController {
         return mv;
     }
 
-    /**
-     * 教师查看所有科目统计
-     */
+
     @RequestMapping("/subjectStatistics")
     @RequiresRoles("2")
-    public ModelAndView subjectStatistics() {
+    public ModelAndView subjectStatistics(
+            @RequestParam(value = "subjectName", required = false) String subjectName,
+            @RequestParam(value = "testNo", required = false) String testNo,
+            @RequestParam(value = "sortField", required = false, defaultValue = "subject") String sortField,
+            @RequestParam(value = "sortOrder", required = false, defaultValue = "asc") String sortOrder) {
+
         ModelAndView mv = new ModelAndView("subjectStatistics");
-        List<Map<String, Object>> subjectStats = gradeService.getSubjectAverages();
+
+        // 调用改造后的 Service 方法
+        List<Map<String, Object>> subjectStats = gradeService.getSubjectAverages(subjectName, testNo, sortField, sortOrder);
+        // 获取所有学期用于下拉框
+        List<String> distinctTerms = gradeService.getDistinctTerms();
+
         mv.addObject("subjectStats", subjectStats);
+        mv.addObject("distinctTerms", distinctTerms);
+
+        // 将所有参数传回前端，用于保持页面状态
+        mv.addObject("searchKeyword", subjectName);
+        mv.addObject("selectedTerm", testNo);
+        mv.addObject("sortField", sortField);
+        mv.addObject("sortOrder", sortOrder);
+
         return mv;
     }
+
+    /**
+     * ==================== 核心修改 2: 新增此方法用于导出数据 ====================
+     */
+    @GetMapping("/export/subjectStatistics")
+    @RequiresRoles("2")
+    public void exportSubjectStatistics(HttpServletResponse response,
+                                        @RequestParam(value = "subjectName", required = false) String subjectName,
+                                        @RequestParam(value = "term", required = false) String term) throws IOException {
+
+        response.setContentType("text/csv;charset=UTF-8");
+        // 添加 BOM 头，防止 Excel 打开中文乱码
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write('\ufeff');
+
+        String fileName = "subject_statistics_export.csv";
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+
+        // 查询数据时，不应用排序，通常导出原始顺序即可
+        List<Map<String, Object>> subjectStats = gradeService.getSubjectAverages(subjectName, term, null, null);
+
+        try (PrintWriter writer = response.getWriter()) {
+            // 写入 CSV 表头
+            writer.println("科目,平均分,最高分,最低分,考试人数,及格率(%)");
+
+            // 遍历数据并写入行
+            for (Map<String, Object> stat : subjectStats) {
+                writer.println(
+                        String.join(",",
+                                "\"" + stat.get("subject") + "\"", // 用引号包裹科目名，防止其中有逗号
+                                String.valueOf(stat.get("average")),
+                                String.valueOf(stat.get("max")),
+                                String.valueOf(stat.get("min")),
+                                String.valueOf(stat.get("count")),
+                                String.valueOf(stat.get("passRate"))
+                        )
+                );
+            }
+        }
+    }
+
 }

@@ -10,10 +10,7 @@ import xyz.teikou.service.StuInfoService;
 
 import java.util.List;
 
-/**
- * Creat by TeiKou
- * 2019/10/11 14:15
- */
+
 @Service
 public class StuInfoServiceImpl implements StuInfoService {
     @Autowired
