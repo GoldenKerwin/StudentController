@@ -84,6 +84,23 @@ CREATE TABLE `attendance` (
   PRIMARY KEY (`id`),
   KEY `idx_sch_number_date` (`sch_number`, `date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- Create file_upload table
+CREATE TABLE `file_upload` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `original_filename` varchar(255) NOT NULL,
+  `stored_filename` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `file_size` bigint DEFAULT NULL,
+  `file_type` varchar(50) NOT NULL,
+  `uploader_id` int NOT NULL,
+  `student_id` int DEFAULT NULL,
+  `course_name` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stored_filename` (`stored_filename`),
+  KEY `uploader_id` (`uploader_id`),
+  KEY `student_id` (`student_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Insert test user data: student and teacher accounts
 -- All passwords are 123456
