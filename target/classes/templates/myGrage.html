@@ -2,16 +2,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>查询我的成绩</title>
+    <title>我的成绩</title>
     <link href="https://cdn.bootcss.com/twitter-bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- ==================== 关键修改 1: 修改 CSS ==================== -->
+    <style>
+        /* 将原来的 header actions 改为 page actions，并设置靠右对齐 */
+        .page-actions {
+            margin-top: 20px; /* 按钮与上方表格的间距 */
+            text-align: right; /* 让内部的元素靠右显示 */
+        }
+    </style>
+    <!-- ============================================================= -->
 </head>
 <body>
 <div class="container">
     <div class="row clearfix">
         <div class="col-md-12 column">
-           <h3>查询我的成绩</h3>
-           <div th:if="${errorMsg != null}" class="alert alert-warning" th:text="${errorMsg}"></div>
-           <div th:if="${grades != null && grades.size() == 0}" class="alert alert-info">暂无成绩数据</div>
+            <!-- 标题部分保持原样 -->
+            <h3>查询我的成绩</h3>
+
+            <div th:if="${errorMsg != null}" class="alert alert-warning" th:text="${errorMsg}"></div>
+            <div th:if="${grades != null && grades.size() == 0}" class="alert alert-info">暂无成绩数据</div>
+
             <table class="table" th:if="${grades != null && grades.size() > 0}">
                 <thead>
                 <tr>
@@ -22,12 +34,19 @@
                 </thead>
                 <tbody>
                 <tr th:each="grade:${grades}">
-                    <td th:text="${grade.getSubName()}"></td>
-                    <td th:text="${grade.getResults()}"></td>
-                    <td th:text="${grade.getTestNo()}"></td>
+                    <td th:text="${grade.subName}"></td>
+                    <td th:text="${grade.results}"></td>
+                    <td th:text="${grade.testNo}"></td>
                 </tr>
                 </tbody>
             </table>
+
+            <!-- ==================== 关键修改 2: 移动并修改按钮容器 ==================== -->
+            <!-- 将按钮放在表格之后，并应用新的 page-actions 样式 -->
+            <div class="page-actions">
+                <a th:href="@{/grade/myStatistics}" class="btn btn-primary">成绩统计分析</a>
+            </div>
+            <!-- ===================================================================== -->
         </div>
     </div>
 </div>

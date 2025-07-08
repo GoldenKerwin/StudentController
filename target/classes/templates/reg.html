@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>教务注册激活</title>
     <link rel="stylesheet" href="/css/apple-style.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <style>
+        /* 通用错误样式 */
+        .input-error { border: 1px solid red !important; }
+        .error-message { color: red; font-size: 0.9em; margin-top: 5px; display: none; }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -16,22 +22,30 @@
         <div class="card" style="max-width: 580px; margin: 0 auto;">
             <h3 style="margin-top: 0;">教务注册激活</h3>
             <form role="form" method="post" action="/register">
+
                 <div class="form-group">
                     <label>用户名</label>
-                    <input required type="text" name="username" class="form-control" placeholder="请输入用户名"/>
+                    <input required type="text" name="username" class="form-control" id="usernameInput" placeholder="请输入用户名" th:value="${param.username}"/>
+                    <span class="error-message" id="usernameError"></span>
                 </div>
+
                 <div class="form-group">
-                    <label for="exampleInputPassword1">请输入密码</label>
-                    <input required type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="请输入密码"/>
+                    <label>请输入密码</label>
+                    <input required type="password" class="form-control" name="password" id="passwordInput" placeholder="请输入密码"/>
+                    <span class="error-message" id="passwordFormatError">密码应为6-16位字符</span>
                 </div>
+
                 <div class="form-group">
-                    <label for="exampleInputPassword2">重新输入密码</label>
-                    <input required type="password" class="form-control" name="password1" id="exampleInputPassword2" placeholder="请再次输入密码"/>
+                    <label>重新输入密码</label>
+                    <input required type="password" class="form-control" name="password1" id="confirmPasswordInput" placeholder="请再次输入密码"/>
+                    <span class="error-message" id="passwordMatchError">两次输入的密码不一致</span>
                 </div>
+
                 <div class="form-group">
                     <label>姓名</label>
                     <input required type="text" name="name" class="form-control" placeholder="请输入您的姓名"/>
                 </div>
+
                 <div class="form-group">
                     <label>身份</label>
                     <div style="display: flex; margin-top: 8px;">
@@ -49,21 +63,25 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>学号/工号</label>
-                    <input required type="text" name="schNumber" class="form-control" placeholder="请输入学号或工号"/>
+                    <input required type="text" name="schNumber" class="form-control" id="schNumberInput" placeholder="请输入学号或工号"/>
+                    <span class="error-message" id="schNumberError"></span>
                 </div>
+
                 <div class="form-group">
                     <label>班级/部门</label>
                     <input required type="text" name="schDepartment" class="form-control" placeholder="请输入班级或部门"/>
                 </div>
+
                 <div class="form-group">
                     <label>邮箱</label>
-                    <input required type="email" name="mail" class="form-control" placeholder="请输入您的邮箱地址"/>
+                    <input required type="email" name="mail" class="form-control" id="mailInput" placeholder="请输入您的邮箱地址"/>
+                    <span class="error-message" id="mailError"></span>
                 </div>
-                
-                <div th:if="${info}" class="alert" th:classappend="${info.contains('成功') ? 'alert-success' : 'alert-error'}" th:text="${info}"></div>
 
+                <div th:if="${info}" class="alert" th:classappend="${info.contains('成功') ? 'alert-success' : 'alert-error'}" th:utext="${info}"></div>
                 <div class="form-group" style="margin-top: 32px;">
                     <button type="submit" class="btn btn-primary">注册</button>
                 </div>
@@ -71,5 +89,89 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+
+        // --- 通用校验函数 ---
+        function validateField(inputEl, errorEl, checkUrl, paramName, clientRegex, clientErrorMsg) {
+            const value = inputEl.val().trim();
+            errorEl.hide();
+            inputEl.removeClass('input-error');
+
+            if (!value) return;
+
+            if (clientRegex && !clientRegex.test(value)) {
+                errorEl.text(clientErrorMsg).show();
+                inputEl.addClass('input-error');
+                return;
+            }
+
+            if (checkUrl) {
+                $.ajax({
+                    url: checkUrl,
+                    type: 'GET',
+                    data: { [paramName]: value },
+                    success: function(response) {
+                        if (!response.valid) {
+                            errorEl.text(response.message).show();
+                            inputEl.addClass('input-error');
+                        }
+                    }
+                });
+            }
+        }
+
+        // --- 绑定事件 ---
+        $('#usernameInput').on('blur', function() {
+            validateField($(this), $('#usernameError'), '/check/username', 'username', /^[a-zA-Z0-9_]{4,16}$/, '用户名应为4-16位字符');
+        });
+
+        $('#schNumberInput').on('blur', function() {
+            validateField($(this), $('#schNumberError'), '/check/schNumber', 'schNumber', /^[0-9]{8,12}$/, '学号/工号应为8-12位数字');
+        });
+
+        $('#mailInput').on('blur', function() {
+            validateField($(this), $('#mailError'), '/check/mail', 'mail', /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, '邮箱格式不正确');
+        });
+
+        // --- 密码的特殊校验逻辑 ---
+        const passwordInput = $('#passwordInput');
+        const confirmPasswordInput = $('#confirmPasswordInput');
+        const passwordFormatError = $('#passwordFormatError');
+        const passwordMatchError = $('#passwordMatchError');
+
+        passwordInput.on('blur', function() {
+            const value = $(this).val();
+            if (value && !/^.{6,16}$/.test(value)) {
+                passwordFormatError.show();
+                $(this).addClass('input-error');
+            } else {
+                passwordFormatError.hide();
+                // 只有当确认密码框也正确时才移除样式
+                if (!passwordMatchError.is(':visible')) {
+                    $(this).removeClass('input-error');
+                }
+            }
+            checkPasswordMatch();
+        });
+
+        function checkPasswordMatch() {
+            const pass1 = passwordInput.val();
+            const pass2 = confirmPasswordInput.val();
+            if (pass2 && pass1 !== pass2) {
+                passwordMatchError.show();
+                if (!passwordFormatError.is(':visible')) passwordInput.addClass('input-error');
+                confirmPasswordInput.addClass('input-error');
+            } else {
+                passwordMatchError.hide();
+                if (!passwordFormatError.is(':visible')) passwordInput.removeClass('input-error');
+                confirmPasswordInput.removeClass('input-error');
+            }
+        }
+        confirmPasswordInput.on('keyup blur', checkPasswordMatch);
+    });
+</script>
+
 </body>
 </html>

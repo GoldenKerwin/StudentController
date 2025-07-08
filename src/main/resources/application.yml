@@ -3,7 +3,7 @@
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/student_controller?serverTimezone=UTC
     username: root
-    password: crW9r5est
+    password: 123456
   main:
     allow-bean-definition-overriding: true
   servlet:
@@ -22,10 +22,11 @@ shiro:
   successUrl: "/success"
   loginUrl: "/doLogin"
 springfox:
-  documentation:
+  6e082e49-58be-4e18-82cb-d5bcfb9316186e082e49-58be-4e18-82cb-d5bcfb931618
+documentation:
     swagger-ui:
-      enabled: true
+      enabled: true6e082e49-58be-4e18-82cb-d5bcfb931618
 
 file:
-  upload-dir=D:/student-system-uploads/
+  upload-dir=./uploads/
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生考勤查询</title>
+    <link rel="stylesheet" th:href="@{/css/apple-style.css}">
+    <style>
+        .search-card {
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            padding: 24px;
+            margin: 24px auto;
+            max-width: 600px;
+        }
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3>学生考勤查询</h3>
+    <div class="search-card">
+        <form th:action="@{/attendance/studentAttendance}" method="get" class="search-form">
+            <label for="schNumber" style="font-weight: 500;">请输入学号:</label>
+            <input type="text" id="schNumber" name="schNumber" class="form-control" style="flex: 1;" required placeholder="输入要查询的学生学号">
+            <button type="submit" class="btn btn-primary">查询</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

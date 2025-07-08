@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>教师文件管理</title>
+    <link rel="stylesheet" href="/css/apple-style.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <style>
+        .table th {
+            border-bottom: none !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>教师文件管理</h2>
+
+    <!-- 上传课程PPT -->
+    <div class="card">
+        <h3>上传课程资料</h3>
+        <form id="pptUploadForm" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>选择文件</label>
+                <input type="file" name="file" class="form-control" required>
+            </div>
+            <input type="hidden" name="fileType" value="PPT">
+            <div class="form-group">
+                <label>课程名称</label>
+                <input type="text" name="courseName" class="form-control" placeholder="请输入课程名" required>
+            </div>
+            <button type="submit" class="btn btn-primary">上传PPT</button>
+        </form>
+    </div>
+
+    <!-- 上传批改后的作业 -->
+    <div class="card">
+        <h3>上传批改后作业</h3>
+        <form id="gradedHomeworkUploadForm" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>选择文件</label>
+                <input type="file" name="file" class="form-control" required>
+            </div>
+            <input type="hidden" name="fileType" value="GRADED_HOMEWORK">
+            <div class="form-group">
+                <label>选择学生</label>
+                <select name="studentId" class="form-control" required>
+                    <option value="">-- 请选择学生 --</option>
+                    <option th:each="student : ${students}" th:value="${student.id}" th:text="${student.name + ' (' + student.schNumber + ')'}"></option>
+                </select>
+            </div>
+            <!-- ==================== 2. 新增课程名称输入框 ==================== -->
+            <div class="form-group">
+                <label>课程名称</label>
+                <input type="text" name="courseName" class="form-control" placeholder="请输入对应的课程名称" required>
+            </div>
+            <!-- ========================================================== -->
+            <button type="submit" class="btn btn-primary">上传批改</button>
+        </form>
+    </div>
+
+    <!-- 查看课程资料列表 -->
+    <div class="card">
+        <h3>已上传的课程资料</h3>
+        <table class="table">
+            <thead><tr><th>课程名</th><th>文件名</th><th>上传时间</th><th>操作</th></tr></thead>
+            <tbody>
+            <tr th:each="ppt : ${ppts}">
+                <td th:text="${ppt.courseName}"></td>
+                <td th:text="${ppt.originalFilename}"></td>
+                <td th:text="${#temporals.format(ppt.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td><a th:href="@{/file/download/{id}(id=${ppt.id})}" class="btn btn-sm btn-default">下载</a></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ppts)}">
+                <td colspan="4" style="text-align: center;">暂无课程资料</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 查看学生作业列表 -->
+    <div class="card">
+        <h3>已收到的学生作业</h3>
+        <table class="table">
+            <thead><tr><th>课程名</th><th>学生姓名</th><th>文件名</th><th>上传时间</th><th>操作</th></tr></thead>
+            <tbody>
+            <tr th:each="hw : ${homeworks}">
+                <td th:text="${hw.courseName}"></td>
+                <td th:text="${@userServiceImpl.findUserById(hw.uploaderId)?.name}"></td>
+                <td th:text="${hw.originalFilename}"></td>
+                <td th:text="${#temporals.format(hw.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td><a th:href="@{/file/download/{id}(id=${hw.id})}" class="btn btn-sm btn-default">下载</a></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(homeworks)}">
+                <td colspan="5" style="text-align: center;">暂无学生提交作业</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // 通用的 AJAX 上传处理函数
+        function handleAjaxUpload(formId) {
+            $('#' + formId).on('submit', function(event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/file/upload',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            window.location.reload();
+                        }
+                    },
+                    error: function() {
+                        alert('上传失败，服务器发生错误！');
+                    }
+                });
+            });
+        }
+
+        // 为两个上传表单绑定事件
+        handleAjaxUpload('pptUploadForm');
+        handleAjaxUpload('gradedHomeworkUploadForm');
+    });
+</script>
+</body>
+</html>
