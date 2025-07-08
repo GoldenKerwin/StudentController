@@ -9,14 +9,12 @@ import xyz.teikou.entity.Attendance;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 考勤Mapper接口
- */
+
 @Mapper
 public interface AttendanceMapper extends BaseMapper<Attendance> {
     
     /**
-     * 统计学生考勤情况
+     * 计学生考勤情况
      * @param schNumber 学号
      * @return 统计结果
      */

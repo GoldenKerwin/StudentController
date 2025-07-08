@@ -6,75 +6,28 @@
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- 样式部分保持不变 -->
     <style>
-        .search-form {
-            background-color: #fff; border-radius: var(--apple-radius);
-            box-shadow: var(--apple-shadow); padding: 24px;
-            margin: 24px auto; max-width: 1100px;
-        }
-        .search-form form {
-            display: flex; align-items: center;
-            gap: 20px; flex-wrap: wrap;
-        }
-        .search-form .form-group {
-            display: flex; align-items: center; gap: 10px;
-        }
-        .search-form label {
-            font-weight: 500; white-space: nowrap;
-        }
-        .search-form input, .search-form select {
-            padding: 8px 12px; border: 1px solid var(--apple-border);
-            border-radius: var(--apple-radius);
-        }
-        .statistics-card {
-            background-color: #fff; border-radius: var(--apple-radius);
-            box-shadow: var(--apple-shadow); padding: 24px;
-            margin: 24px auto; max-width: 1100px;
-        }
-        .card-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 20px;
-        }
+        .search-form { background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; margin: 24px auto; max-width: 1100px; }
+        .search-form form { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .search-form .form-group { display: flex; align-items: center; gap: 10px; }
+        .search-form label { font-weight: 500; white-space: nowrap; }
+        .search-form input, .search-form select { padding: 8px 12px; border: 1px solid var(--apple-border); border-radius: var(--apple-radius); }
+        .statistics-card { background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; margin: 24px auto; max-width: 1100px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .card-header h2 { margin: 0; }
-        .charts-wrapper {
-            display: flex; gap: 24px; flex-wrap: wrap;
-            max-width: 1100px; margin: 24px auto;
-        }
-        .charts-wrapper > .chart-container {
-            flex: 1; min-width: 400px; margin: 0;
-            background-color: #fff; border-radius: var(--apple-radius);
-            box-shadow: var(--apple-shadow); padding: 24px;
-            height: 400px; position: relative;
-        }
-        table {
-            width: 100%; border-collapse: separate; border-spacing: 0;
-        }
-        table th {
-            background-color: var(--apple-gray); padding: 16px;
-            text-align: left; font-weight: 500;
-            color: var(--apple-dark); border-bottom: none;
-            vertical-align: middle;
-        }
-        table td {
-            padding: 16px; border-bottom: 1px solid var(--apple-border);
-            text-align: center;
-        }
+        .charts-wrapper { display: flex; gap: 24px; flex-wrap: wrap; max-width: 1100px; margin: 24px auto; }
+        .charts-wrapper > .chart-container { flex: 1; min-width: 400px; margin: 0; background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; height: 400px; position: relative; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        table th { background-color: var(--apple-gray); padding: 16px; text-align: left; font-weight: 500; color: var(--apple-dark); border-bottom: none; vertical-align: middle; }
+        table td { padding: 16px; border-bottom: 1px solid var(--apple-border); text-align: center; }
         table th:first-child, table td:first-child { text-align: left; }
         table tr:last-child td { border-bottom: none; }
-        .table th a {
-            color: inherit; text-decoration: none;
-            display: inline-flex; align-items: center;
-        }
+        .table th a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
         .table th a:hover { text-decoration: underline; }
         .sort-icon { margin-left: 5px; font-size: 12px; color: var(--apple-blue); }
         .button-container { margin-top: 24px; text-align: center; }
-        .button {
-            display: inline-block; padding: 12px 24px; font-size: 16px;
-            font-weight: 500; text-align: center; border-radius: var(--apple-radius);
-            cursor: pointer; transition: all 0.2s ease; border: none;
-            margin-right: 12px; background-color: var(--apple-blue);
-            color: white; text-decoration: none;
-        }
+        .button { display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500; text-align: center; border-radius: var(--apple-radius); cursor: pointer; transition: all 0.2s ease; border: none; margin-right: 12px; background-color: var(--apple-blue); color: white; text-decoration: none; }
         .empty-data { text-align: center; padding: 40px 0; color: var(--apple-light-text); }
     </style>
 </head>
@@ -101,7 +54,6 @@
         </form>
     </div>
 
-    <!-- 仅在有数据时显示结果 -->
     <th:block th:if="${subjectStats != null and !subjectStats.isEmpty()}">
         <!-- 表格卡片 -->
         <div class="statistics-card">
@@ -151,59 +103,75 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        var subjectStats = /*[[${subjectStats}]]*/ [];
-        if (subjectStats && subjectStats.length > 0) {
-            var subjects = [], averages = [], passRates = [], maxScores = [], minScores = [];
-            subjectStats.forEach(s => {
-                subjects.push(s.subject);
-                averages.push(s.average);
-                passRates.push(s.passRate);
-                maxScores.push(s.max);
-                minScores.push(s.min);
-            });
+        // 使用 try-catch 包裹以增强健壮性
+        try {
+            var subjectStats = /*[[${subjectStats}]]*/ [];
 
-            // 创建平均分图表
-            var avgCtx = document.getElementById('averagesChart').getContext('2d');
-            new Chart(avgCtx, {
-                type: 'bar',
-                data: {
-                    labels: subjects,
-                    datasets: [
-                        { label: '平均分', data: averages, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
-                        { label: '最高分', data: maxScores, backgroundColor: 'rgba(75, 192, 192, 0.7)' },
-                        { label: '最低分', data: minScores, backgroundColor: 'rgba(255, 99, 132, 0.7)' }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, max: 100 } },
-                    plugins: { title: { display: true, text: '各科目成绩分数对比' } }
-                }
-            });
+            // 在浏览器控制台打印数据，便于调试
+            console.log("从后端接收到的科目统计数据:", subjectStats);
 
-            // 创建及格率图表
-            var passCtx = document.getElementById('passRatesChart').getContext('2d');
-            new Chart(passCtx, {
-                type: 'pie',
-                data: {
-                    labels: subjects,
-                    datasets: [{
-                        label: '及格率(%)', data: passRates,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.7)','rgba(54, 162, 235, 0.7)','rgba(255, 206, 86, 0.7)',
-                            'rgba(75, 192, 192, 0.7)','rgba(153, 102, 255, 0.7)','rgba(255, 159, 64, 0.7)'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        title: { display: true, text: '各科目及格率对比' },
-                        legend: { position: 'right' },
-                        tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + '%' } }
-                    }
+            if (subjectStats && subjectStats.length > 0) {
+                var subjects = [], averages = [], passRates = [], maxScores = [], minScores = [];
+
+                subjectStats.forEach(s => {
+                    subjects.push(s.subject || '未知科目'); // 使用默认值防止 null 或 undefined
+                    averages.push(s.average || 0);
+                    passRates.push(s.passRate || 0);
+                    maxScores.push(s.max || 0);
+                    minScores.push(s.min || 0);
+                });
+
+                // --- 创建第一个图表：成绩分数对比 ---
+                var avgCanvas = document.getElementById('averagesChart');
+                if (avgCanvas) {
+                    var avgCtx = avgCanvas.getContext('2d');
+                    new Chart(avgCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: subjects,
+                            datasets: [
+                                { label: '平均分', data: averages, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+                                { label: '最高分', data: maxScores, backgroundColor: 'rgba(75, 192, 192, 0.7)' },
+                                { label: '最低分', data: minScores, backgroundColor: 'rgba(255, 99, 132, 0.7)' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true, max: 100 } },
+                            plugins: { title: { display: true, text: '各科目成绩分数对比' } }
+                        }
+                    });
                 }
-            });
+
+                // --- 创建第二个图表：及格率对比 ---
+                var passCanvas = document.getElementById('passRatesChart');
+                if (passCanvas) {
+                    var passCtx = passCanvas.getContext('2d');
+                    new Chart(passCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: subjects,
+                            datasets: [{
+                                label: '及格率(%)', data: passRates,
+                                backgroundColor: [
+                                    'rgba(75, 192, 192, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)',
+                                    'rgba(255, 99, 132, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)'
+                                ].slice(0, subjects.length) // 确保颜色数量与科目数量匹配
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: {
+                                title: { display: true, text: '各科目及格率对比' },
+                                legend: { position: 'right' },
+                                tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + '%' } }
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("创建图表时发生错误:", e);
         }
 
         // 导出按钮JS逻辑

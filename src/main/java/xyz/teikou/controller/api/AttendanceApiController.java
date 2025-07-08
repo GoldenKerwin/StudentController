@@ -38,15 +38,19 @@ public class AttendanceApiController {
     }
 
     /**
+     * ==================== 核心修改在这里 ====================
      * 获取特定日期的考勤记录
      */
     @GetMapping("/date/{date}")
     @ApiOperation("获取特定日期的考勤记录")
     @RequiresPermissions("teacher:attendance:manage")
     public ResponseEntity<List<Attendance>> getAttendanceByDate(
-            @ApiParam(value = "日期 (yyyy-MM-dd)", required = true) 
-            @PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
-        List<Attendance> attendanceList = attendanceService.getAttendanceByDate(date);
+            @ApiParam(value = "日期 (yyyy-MM-dd)", required = true)
+            @PathVariable("date") String dateString) { // 1. 直接接收 String 类型的 dateString
+
+        // 2. 将 String 直接传递给 Service 层
+        List<Attendance> attendanceList = attendanceService.getAttendanceByDate(dateString);
+
         return ResponseEntity.ok(attendanceList);
     }
 

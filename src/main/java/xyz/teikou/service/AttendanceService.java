@@ -48,7 +48,7 @@ public interface AttendanceService {
      * @param date 日期
      * @return 考勤列表
      */
-    List<Attendance> getAttendanceByDate(Date date);
+    List<Attendance> getAttendanceByDate(String dateString);
     
     /**
      * 获取特定课程的考勤记录

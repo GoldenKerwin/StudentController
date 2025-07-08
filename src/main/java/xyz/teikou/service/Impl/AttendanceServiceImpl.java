@@ -57,22 +57,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         return attendanceMapper.selectList(queryWrapper);
     }
 
-    /**
-     * @param date
-     * @return
-     */
     @Override
-    public List<Attendance> getAttendanceByDate(Date date) {
-        if (date == null) {
+    public List<Attendance> getAttendanceByDate(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
             return Collections.emptyList();
         }
         QueryWrapper<Attendance> queryWrapper = new QueryWrapper<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateString = sdf.format(date);
-
-        // 使用数据库的 DATE() 函数进行精确的日期匹配，忽略时间部分
         queryWrapper.apply("DATE(date) = {0}", dateString);
-
         return attendanceMapper.selectList(queryWrapper);
     }
 

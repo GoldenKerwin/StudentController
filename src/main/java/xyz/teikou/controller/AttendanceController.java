@@ -175,21 +175,29 @@ public class AttendanceController {
     }
 
     /**
+     * ==================== 核心修复在这里 ====================
      * 教师查看日期考勤记录
      */
     @RequestMapping("/dateAttendance")
     @RequiresPermissions("teacher:attendance:manage")
-    public ModelAndView dateAttendance(@RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+    public ModelAndView dateAttendance(@RequestParam(value = "date", required = false) String dateString) {
+
         ModelAndView mv = new ModelAndView("dateAttendance");
-        if (date != null) {
-            List<Attendance> attendanceList = attendanceService.getAttendanceByDate(date);
-            // 修正：如果列表为空，也应该传递一个空列表而不是null
+
+        // 只有当用户确实提交了一个非空日期时，才进行查询和数据传递
+        if (dateString != null && !dateString.isEmpty()) {
+            List<Attendance> attendanceList = attendanceService.getAttendanceByDate(dateString);
+
             mv.addObject("attendanceList", attendanceList != null ? attendanceList : Collections.emptyList());
+
             if (attendanceList == null || attendanceList.isEmpty()) {
-                mv.addObject("message", "没有找到 " + new SimpleDateFormat("yyyy-MM-dd").format(date) + " 的考勤记录");
+                mv.addObject("message", "没有找到 " + dateString + " 的考勤记录");
             }
-            mv.addObject("queryDate", new SimpleDateFormat("yyyy-MM-dd").format(date));
         }
+
+        // 始终回显用户查询的日期（如果是首次访问，则为null）
+        mv.addObject("queryDate", dateString);
+
         return mv;
     }
 
