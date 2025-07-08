@@ -57,7 +57,7 @@ public class UserRealm extends AuthorizingRealm {
         // 2. 返回包含【加密密码】和【盐】的 AuthenticationInfo 对象
         //    Shiro 会用这个信息和我们配置的 HashedCredentialsMatcher 来自动比对密码
         return new SimpleAuthenticationInfo(
-                user,                                  // Principal: 认证主体，通常是 user 对象
+                user,                                  // user 对象
                 user.getPassword(),                    // Hashed Credentials: 数据库中存储的【加密后】的密码
                 ByteSource.Util.bytes(user.getSalt()), // Salt: 数据库中存储的盐，必须用 ByteSource 包装
                 this.getName()                         // Realm Name

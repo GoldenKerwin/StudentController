@@ -5,137 +5,169 @@
     <title>班级成绩统计</title>
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <!-- 1. 引入与考勤统计页面一致的美化样式 -->
+    <style>
+        .search-form {
+            background-color: #fff;
+            border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow);
+            padding: 24px;
+            margin: 24px auto;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+        }
+        .search-form form { display: flex; align-items: center; width: 100%; }
+        .search-form label { margin-right: 10px; font-weight: 500; }
+        .search-form input {
+            padding: 10px 15px; border: 1px solid var(--apple-border);
+            border-radius: var(--apple-radius); margin-right: 15px;
+            flex: 1; max-width: 300px;
+        }
+        .search-form input:focus {
+            outline: none; border-color: var(--apple-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+        .search-form button {
+            background-color: var(--apple-blue); color: white; border: none;
+            padding: 10px 20px; border-radius: var(--apple-radius); cursor: pointer;
+        }
+        .statistics-card {
+            background-color: #fff; border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow); padding: 24px;
+            margin: 24px auto; max-width: 900px;
+        }
+        .chart-container {
+            background-color: #fff; border-radius: var(--apple-radius);
+            box-shadow: var(--apple-shadow); padding: 24px;
+            margin: 24px auto; max-width: 900px;
+            height: 400px; position: relative;
+        }
+        .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .stat-item { flex: 1; min-width: 200px; padding: 16px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        table th {
+            background-color: var(--apple-gray); padding: 16px; text-align: left;
+            font-weight: 500; color: var(--apple-dark); border-bottom: none;
+        }
+        table td { padding: 16px; border-bottom: 1px solid var(--apple-border); }
+        table tr:last-child td { border-bottom: none; }
+        .button-container { margin-top: 24px; text-align: center; }
+        .button {
+            display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500;
+            text-align: center; border-radius: var(--apple-radius); cursor: pointer;
+            transition: all 0.2s ease; border: none; margin-right: 12px;
+            background-color: var(--apple-blue); color: white; text-decoration: none;
+        }
+        .empty-data { text-align: center; padding: 40px 0; color: var(--apple-light-text); }
+    </style>
 </head>
 <body>
-    <h1>班级成绩统计分析</h1>
-    
+<div class="container">
+    <h3>班级成绩统计</h3>
+
+    <!-- 2. 使用美化后的搜索框 -->
     <div class="search-form">
         <form th:action="@{/grade/classStatistics}" method="get">
             <label for="className">班级名称:</label>
-            <input type="text" id="className" name="className" th:value="${className}" required>
-            <button type="submit">查询</button>
+            <input type="text" id="className" name="className" th:value="${className}" required placeholder="请输入班级全称进行查询">
+            <button type="submit" class="btn btn-primary">查询</button>
         </form>
     </div>
-    
-    <div th:if="${className != null}" class="statistics-card">
-        <h2 th:text="${className + '班级成绩概况'}"></h2>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <h3>总览</h3>
-                <p>学生人数: <span th:text="${statistics.studentCount}"></span></p>
-                <p>班级平均分: <span th:text="${statistics.classAverage}"></span></p>
-                <p>总体及格率: <span th:text="${statistics.passRate}"></span>%</p>
-            </div>
-            <div class="stat-item">
-                <h3>优秀学生</h3>
-                <p>成绩最好学生: <span th:text="${statistics.bestStudent}"></span></p>
-            </div>
+
+    <!-- 3. 将所有结果都包裹在一个 th:if 中 -->
+    <div th:if="${className != null}">
+
+        <!-- 如果查询了但没有数据，显示提示信息 -->
+        <div th:if="${statistics == null or statistics.studentCount == 0}" class="statistics-card empty-data">
+            <h2>未找到班级成绩数据</h2>
+            <p>没有找到"<span th:text="${className}"></span>"班级的成绩记录，请确认班级名称是否正确或该班级是否有成绩。</p>
         </div>
+
+        <!-- 只有在有数据时才显示下面的内容 -->
+        <th:block th:if="${statistics != null and statistics.studentCount > 0}">
+            <!-- 卡片1: 成绩概况 -->
+            <div class="statistics-card">
+                <h2 th:text="${className + ' 班级成绩概况'}"></h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h3>总览</h3>
+                        <p>学生人数: <span th:text="${statistics.studentCount}"></span></p>
+                        <p>班级平均分: <span th:text="${statistics.classAverage}"></span></p>
+                        <p>总体及格率: <span th:text="${statistics.passRate}"></span>%</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>优秀学生</h3>
+                        <p>成绩最好学生: <span th:text="${statistics.bestStudent}"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片2: 图表 -->
+            <div th:if="${#maps.containsKey(statistics, 'subjects') and !#lists.isEmpty(statistics.subjects)}" class="chart-container">
+                <canvas id="subjectsChart"></canvas>
+            </div>
+
+            <!-- 卡片3: 各科目成绩分析 -->
+            <div th:if="${#maps.containsKey(statistics, 'subjects') and !#lists.isEmpty(statistics.subjects)}" class="statistics-card">
+                <h2>各科目成绩分析</h2>
+                <table>
+                    <thead><tr><th>科目</th><th>平均分</th><th>及格率</th></tr></thead>
+                    <tbody>
+                    <tr th:each="subject : ${statistics.subjects}">
+                        <td th:text="${subject.subject}"></td>
+                        <td th:text="${subject.average}"></td>
+                        <td th:text="${subject.passRate + '%'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </th:block>
     </div>
-    
-    <div th:if="${className != null && statistics.subjects != null && !statistics.subjects.isEmpty()}" class="statistics-card">
-        <h2>各科目成绩分析</h2>
-        <table border="1">
-            <tr>
-                <th>科目</th>
-                <th>平均分</th>
-                <th>及格率</th>
-            </tr>
-            <tr th:each="subject : ${statistics.subjects}">
-                <td th:text="${subject.subject}"></td>
-                <td th:text="${subject.average}"></td>
-                <td th:text="${subject.passRate + '%'}"></td>
-            </tr>
-        </table>
-    </div>
-    
-    <div th:if="${className != null && statistics.subjects != null && !statistics.subjects.isEmpty()}" class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
-        <canvas id="subjectsChart"></canvas>
-    </div>
-    
+
     <div class="button-container">
-        <a th:href="@{/grade/findAll}" class="button">返回成绩列表</a>
+        <a th:href="@{/grade/findAll}" class="button">返回全部成绩</a>
     </div>
-    
+
     <script th:inline="javascript">
         /*<![CDATA[*/
-        // 获取科目统计数据
-        var subjects = /*[[${statistics != null ? statistics.subjects : []}]]*/ [];
-        
+        // JavaScript 部分保持不变
+        var statistics = /*[[${statistics}]]*/ null;
+        var subjects = [];
+        if (statistics && statistics.subjects) {
+            subjects = statistics.subjects;
+        }
+
         if (subjects && subjects.length > 0) {
-            // 准备图表数据
-            var subjectNames = [];
-            var averages = [];
-            var passRates = [];
-            
-            for (var i = 0; i < subjects.length; i++) {
-                subjectNames.push(subjects[i].subject);
-                averages.push(subjects[i].average);
-                passRates.push(subjects[i].passRate);
-            }
-            
-            // 创建图表
+            var subjectNames = [], averages = [], passRates = [];
+            subjects.forEach(s => {
+                subjectNames.push(s.subject);
+                averages.push(s.average);
+                passRates.push(s.passRate);
+            });
+
             var ctx = document.getElementById('subjectsChart').getContext('2d');
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: subjectNames,
                     datasets: [
-                        {
-                            label: '平均分',
-                            data: averages,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: '及格率(%)',
-                            data: passRates,
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1,
-                            yAxisID: 'y1'
-                        }
+                        { label: '平均分', data: averages, backgroundColor: 'rgba(54, 162, 235, 0.7)', yAxisID: 'y' },
+                        { label: '及格率(%)', data: passRates, backgroundColor: 'rgba(255, 99, 132, 0.7)', yAxisID: 'y1' }
                     ]
                 },
                 options: {
+                    maintainAspectRatio: false,
                     responsive: true,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            type: 'linear',
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: '平均分'
-                            }
-                        },
-                        y1: {
-                            beginAtZero: true,
-                            max: 100,
-                            type: 'linear',
-                            position: 'right',
-                            grid: {
-                                drawOnChartArea: false
-                            },
-                            title: {
-                                display: true,
-                                text: '及格率(%)'
-                            }
-                        }
+                        y: { beginAtZero: true, max: 100, type: 'linear', position: 'left', title: { display: true, text: '平均分' } },
+                        y1: { beginAtZero: true, max: 100, type: 'linear', position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '及格率(%)' } }
                     },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '各科目成绩对比'
-                        }
-                    }
+                    plugins: { title: { display: true, text: '各科目成绩对比' } }
                 }
             });
         }
         /*]]>*/
     </script>
 </body>
-</html> 
+</html>

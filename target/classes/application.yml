@@ -6,6 +6,10 @@
     password: 123456
   main:
     allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 200MB
 server:
   port: 8080
 shiro:
@@ -18,6 +22,11 @@ shiro:
   successUrl: "/success"
   loginUrl: "/doLogin"
 springfox:
-  documentation:
+  6e082e49-58be-4e18-82cb-d5bcfb9316186e082e49-58be-4e18-82cb-d5bcfb931618
+documentation:
     swagger-ui:
-      enabled: true
+      enabled: true6e082e49-58be-4e18-82cb-d5bcfb931618
+
+file:
+  upload-dir=./uploads/
+

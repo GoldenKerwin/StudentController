@@ -17,10 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * 学生信息管理控制器
- * 整合学生端和教师端学生信息管理功能
- */
 @Controller
 @RequestMapping("/stuInfo")
 public class StuInfoController {

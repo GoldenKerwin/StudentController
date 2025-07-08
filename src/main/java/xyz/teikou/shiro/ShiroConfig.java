@@ -46,6 +46,7 @@ public class ShiroConfig {
         definition.addPathDefinition("/css/**", "anon");
         definition.addPathDefinition("/js/**", "anon");
         definition.addPathDefinition("/images/**", "anon");
+        definition.addPathDefinition("/img/**", "anon");
         // 新增：允许匿名访问所有实时校验接口
         definition.addPathDefinition("/check/**", "anon");
         // logout: 登出过滤器

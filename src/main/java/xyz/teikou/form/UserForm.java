@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
 @Data
 public class UserForm {
     @NotBlank(message = "用户名不能为空")
-    @Size(min = 3, max = 20, message = "用户名长度必须在3-20个字符之间")
+    @Size(min = 2, max = 20, message = "用户名长度必须在2-20个字符之间")
     private String username;
 
     @NotBlank(message = "密码不能为空")
@@ -27,8 +27,8 @@ public class UserForm {
     @NotNull(message = "角色ID不能为空")
     private Integer roleId;
 
-    @NotBlank(message = "学号不能为空")
-    @Pattern(regexp = "^[0-9]{8,12}$", message = "学号格式不正确，应为8-12位数字")
+    @NotBlank(message = "学号/工号不能为空")
+    @Pattern(regexp = "^[0-9]{6,10}$", message = "学号/工号格式不正确，应为6-10位数字")
     private String schNumber;
 
     @NotBlank(message = "邮箱不能为空")

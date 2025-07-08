@@ -22,10 +22,11 @@ shiro:
   successUrl: "/success"
   loginUrl: "/doLogin"
 springfox:
-  documentation:
+  6e082e49-58be-4e18-82cb-d5bcfb9316186e082e49-58be-4e18-82cb-d5bcfb931618
+documentation:
     swagger-ui:
-      enabled: true
+      enabled: true6e082e49-58be-4e18-82cb-d5bcfb931618
 
 file:
-  upload-dir=D:/student-system-uploads/
+  upload-dir=./uploads/
 

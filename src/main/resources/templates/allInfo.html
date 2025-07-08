@@ -19,42 +19,20 @@
     <div class="row">
         <h3>学生信息管理</h3>
     </div>
-    <div class="row" style="display: flex; flex-wrap: wrap; margin: 0 -12px;">
-        <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
-            <div class="card">
-                <h3 style="margin-top: 0; font-size: 22px;">查询条件</h3>
-                <form role="form" action="/stuInfo/theInfo">
-                    <div class="form-group">
-                        <label>学号</label>
-                        <input type="text" name="schNumber" required class="form-control" placeholder="请输入学生学号"/>
-                    </div>
-                    <div class="form-group" style="margin-top: 24px;">
-                        <button type="submit" class="btn btn-primary">查询</button>
-                    </div>
-                </form>
-            </div>
+    <div class="row">
+        <div class="card" style="margin-bottom: 24px;">
+            <h3 style="margin-top: 0; font-size: 22px;">查询条件</h3>
+            <form role="form" action="/stuInfo/theInfo">
+                <div class="form-group">
+                    <label>学号</label>
+                    <input type="text" name="schNumber" required class="form-control" placeholder="请输入学生学号"/>
+                </div>
+                <div class="form-group" style="margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary">查询</button>
+                </div>
+            </form>
         </div>
-        <div style="flex: 1; min-width: 300px; padding: 0 12px; margin-bottom: 24px;">
-            <div class="card">
-                <h3 style="margin-top: 0; font-size: 22px;">系统公告</h3>
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>标题</th>
-                        <th>发布部门</th>
-                        <th>发布时间</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>暂时没有新的公告</td>
-                        <td>暂时没有新的公告</td>
-                        <td>暂时没有新的公告</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- 整个右侧的“系统公告” div 已被删除 -->
     </div>
     <div class="row">
         <div class="card">

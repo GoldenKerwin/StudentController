@@ -12,10 +12,7 @@
         <div class="nav">
             <a href="#" class="nav-brand">学生信息管理系统</a>
             <div style="display: flex; align-items: center;">
-                <!-- ==================== 1. 修复姓名显示 ==================== -->
-                <!-- 将 session.user.getName() 修改为 session.user.name -->
                 <span style="margin-right: 16px;" th:text="${user?.name ?: session.user.name} + ' 同学'"></span>
-                <!-- ======================================================== -->
                 <a href="/logout" style="color: var(--apple-blue); text-decoration: none;">退出</a>
             </div>
         </div>

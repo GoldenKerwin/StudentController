@@ -84,6 +84,7 @@ CREATE TABLE `attendance` (
   PRIMARY KEY (`id`),
   KEY `idx_sch_number_date` (`sch_number`, `date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- Create file_upload table
 CREATE TABLE `file_upload` (
   `id` int NOT NULL AUTO_INCREMENT,

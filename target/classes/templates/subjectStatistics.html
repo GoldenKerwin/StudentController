@@ -5,168 +5,187 @@
     <title>科目成绩统计</title>
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- 样式部分保持不变 -->
+    <style>
+        .search-form { background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; margin: 24px auto; max-width: 1100px; }
+        .search-form form { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .search-form .form-group { display: flex; align-items: center; gap: 10px; }
+        .search-form label { font-weight: 500; white-space: nowrap; }
+        .search-form input, .search-form select { padding: 8px 12px; border: 1px solid var(--apple-border); border-radius: var(--apple-radius); }
+        .statistics-card { background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; margin: 24px auto; max-width: 1100px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-header h2 { margin: 0; }
+        .charts-wrapper { display: flex; gap: 24px; flex-wrap: wrap; max-width: 1100px; margin: 24px auto; }
+        .charts-wrapper > .chart-container { flex: 1; min-width: 400px; margin: 0; background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; height: 400px; position: relative; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        table th { background-color: var(--apple-gray); padding: 16px; text-align: left; font-weight: 500; color: var(--apple-dark); border-bottom: none; vertical-align: middle; }
+        table td { padding: 16px; border-bottom: 1px solid var(--apple-border); text-align: center; }
+        table th:first-child, table td:first-child { text-align: left; }
+        table tr:last-child td { border-bottom: none; }
+        .table th a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
+        .table th a:hover { text-decoration: underline; }
+        .sort-icon { margin-left: 5px; font-size: 12px; color: var(--apple-blue); }
+        .button-container { margin-top: 24px; text-align: center; }
+        .button { display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500; text-align: center; border-radius: var(--apple-radius); cursor: pointer; transition: all 0.2s ease; border: none; margin-right: 12px; background-color: var(--apple-blue); color: white; text-decoration: none; }
+        .empty-data { text-align: center; padding: 40px 0; color: var(--apple-light-text); }
+    </style>
 </head>
 <body>
-    <h1>全校科目成绩统计分析</h1>
-    
-    <div class="statistics-card">
-        <h2>科目成绩总览</h2>
-        <table border="1">
-            <tr>
-                <th>科目</th>
-                <th>平均分</th>
-                <th>最高分</th>
-                <th>最低分</th>
-                <th>考试人数</th>
-                <th>及格率</th>
-            </tr>
-            <tr th:each="subject : ${subjectStats}">
-                <td th:text="${subject.subject}"></td>
-                <td th:text="${subject.average}"></td>
-                <td th:text="${subject.max}"></td>
-                <td th:text="${subject.min}"></td>
-                <td th:text="${subject.count}"></td>
-                <td th:text="${subject.passRate + '%'}"></td>
-            </tr>
-        </table>
+<div class="container">
+    <h3>全校科目成绩统计分析</h3>
+
+    <!-- 搜索、筛选表单 -->
+    <div class="search-form">
+        <form id="filterForm" th:action="@{/grade/subjectStatistics}" method="get">
+            <div class="form-group">
+                <label for="subjectName">科目名称:</label>
+                <input type="text" id="subjectName" name="subjectName" th:value="${searchKeyword}" placeholder="输入关键词搜索">
+            </div>
+            <div class="form-group">
+                <label for="testNo">考试批次:</label>
+                <select id="testNo" name="testNo">
+                    <option value="">全部批次</option>
+                    <option th:each="t : ${distinctTerms}" th:value="${t}" th:text="${t}" th:selected="${t == selectedTerm}"></option>
+                </select>
+            </div>
+            <button type="submit" class="button" style="padding: 8px 16px; font-size: 14px;">查询</button>
+            <a th:href="@{/grade/subjectStatistics}" class="button" style="padding: 8px 16px; font-size: 14px; background-color: #8e8e93;">重置</a>
+        </form>
     </div>
-    
-    <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
-        <canvas id="averagesChart"></canvas>
+
+    <th:block th:if="${subjectStats != null and !subjectStats.isEmpty()}">
+        <!-- 表格卡片 -->
+        <div class="statistics-card">
+            <div class="card-header">
+                <h2>科目成绩总览</h2>
+                <a id="exportBtn" href="#" class="button" style="padding: 8px 16px; font-size: 14px; background-color: var(--apple-success);">导出为Excel</a>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th><a th:href="@{/grade/subjectStatistics(subjectName=${searchKeyword}, testNo=${selectedTerm}, sortField='subject', sortOrder=${sortField == 'subject' && sortOrder == 'asc' ? 'desc' : 'asc'})}">科目 <span th:if="${sortField == 'subject'}" th:text="${sortOrder == 'asc' ? '▲' : '▼'}" class="sort-icon"></span></a></th>
+                    <th><a th:href="@{/grade/subjectStatistics(subjectName=${searchKeyword}, testNo=${selectedTerm}, sortField='average', sortOrder=${sortField == 'average' && sortOrder == 'asc' ? 'desc' : 'asc'})}">平均分 <span th:if="${sortField == 'average'}" th:text="${sortOrder == 'asc' ? '▲' : '▼'}" class="sort-icon"></span></a></th>
+                    <th><a th:href="@{/grade/subjectStatistics(subjectName=${searchKeyword}, testNo=${selectedTerm}, sortField='max', sortOrder=${sortField == 'max' && sortOrder == 'asc' ? 'desc' : 'asc'})}">最高分 <span th:if="${sortField == 'max'}" th:text="${sortOrder == 'asc' ? '▲' : '▼'}" class="sort-icon"></span></a></th>
+                    <th><a th:href="@{/grade/subjectStatistics(subjectName=${searchKeyword}, testNo=${selectedTerm}, sortField='min', sortOrder=${sortField == 'min' && sortOrder == 'asc' ? 'desc' : 'asc'})}">最低分 <span th:if="${sortField == 'min'}" th:text="${sortOrder == 'asc' ? '▲' : '▼'}" class="sort-icon"></span></a></th>
+                    <th><a th:href="@{/grade/subjectStatistics(subjectName=${searchKeyword}, testNo=${selectedTerm}, sortField='count', sortOrder=${sortField == 'count' && sortOrder == 'asc' ? 'desc' : 'asc'})}">考试人数 <span th:if="${sortField == 'count'}" th:text="${sortOrder == 'asc' ? '▲' : '▼'}" class="sort-icon"></span></a></th>
+                    <th><a th:href="@{/grade/subjectStatistics(subjectName=${searchKeyword}, testNo=${selectedTerm}, sortField='passRate', sortOrder=${sortField == 'passRate' && sortOrder == 'asc' ? 'desc' : 'asc'})}">及格率 <span th:if="${sortField == 'passRate'}" th:text="${sortOrder == 'asc' ? '▲' : '▼'}" class="sort-icon"></span></a></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="subject : ${subjectStats}">
+                    <td th:text="${subject.subject}"></td><td th:text="${subject.average}"></td>
+                    <td th:text="${subject.max}"></td><td th:text="${subject.min}"></td>
+                    <td th:text="${subject.count}"></td><td th:text="${subject.passRate + '%'}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 图表容器 -->
+        <div class="charts-wrapper">
+            <div class="chart-container"><canvas id="averagesChart"></canvas></div>
+            <div class="chart-container"><canvas id="passRatesChart"></canvas></div>
+        </div>
+    </th:block>
+
+    <!-- 空数据提示 -->
+    <div th:if="${subjectStats == null or subjectStats.isEmpty()}" class="statistics-card empty-data">
+        <h2>暂无科目成绩数据</h2>
+        <p th:if="${searchKeyword == null and selectedTerm == null}">系统中还没有任何成绩记录可供统计分析。</p>
+        <p th:if="${searchKeyword != null or selectedTerm != null}">未找到符合筛选条件的科目成绩。</p>
     </div>
-    
-    <div class="chart-container" style="position: relative; height:40vh; width:80vw; margin: 20px auto;">
-        <canvas id="passRatesChart"></canvas>
-    </div>
-    
+
+    <!-- 返回按钮 -->
     <div class="button-container">
-        <a th:href="@{/grade/findAll}" class="button">返回成绩列表</a>
+        <a th:href="@{/index}" class="button">返回首页</a>
     </div>
-    
+
     <script th:inline="javascript">
         /*<![CDATA[*/
-        // 获取科目统计数据
-        var subjectStats = /*[[${subjectStats}]]*/ [];
-        
-        // 准备图表数据
-        var subjects = [];
-        var averages = [];
-        var passRates = [];
-        var maxScores = [];
-        var minScores = [];
-        
-        for (var i = 0; i < subjectStats.length; i++) {
-            subjects.push(subjectStats[i].subject);
-            averages.push(subjectStats[i].average);
-            passRates.push(subjectStats[i].passRate);
-            maxScores.push(subjectStats[i].max);
-            minScores.push(subjectStats[i].min);
-        }
-        
-        // 创建平均分图表
-        var avgCtx = document.getElementById('averagesChart').getContext('2d');
-        var avgChart = new Chart(avgCtx, {
-            type: 'bar',
-            data: {
-                labels: subjects,
-                datasets: [
-                    {
-                        label: '平均分',
-                        data: averages,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: '最高分',
-                        data: maxScores,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: '最低分',
-                        data: minScores,
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '各科目成绩对比'
-                    }
+        // 使用 try-catch 包裹以增强健壮性
+        try {
+            var subjectStats = /*[[${subjectStats}]]*/ [];
+
+            // 在浏览器控制台打印数据，便于调试
+            console.log("从后端接收到的科目统计数据:", subjectStats);
+
+            if (subjectStats && subjectStats.length > 0) {
+                var subjects = [], averages = [], passRates = [], maxScores = [], minScores = [];
+
+                subjectStats.forEach(s => {
+                    subjects.push(s.subject || '未知科目'); // 使用默认值防止 null 或 undefined
+                    averages.push(s.average || 0);
+                    passRates.push(s.passRate || 0);
+                    maxScores.push(s.max || 0);
+                    minScores.push(s.min || 0);
+                });
+
+                // --- 创建第一个图表：成绩分数对比 ---
+                var avgCanvas = document.getElementById('averagesChart');
+                if (avgCanvas) {
+                    var avgCtx = avgCanvas.getContext('2d');
+                    new Chart(avgCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: subjects,
+                            datasets: [
+                                { label: '平均分', data: averages, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+                                { label: '最高分', data: maxScores, backgroundColor: 'rgba(75, 192, 192, 0.7)' },
+                                { label: '最低分', data: minScores, backgroundColor: 'rgba(255, 99, 132, 0.7)' }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true, max: 100 } },
+                            plugins: { title: { display: true, text: '各科目成绩分数对比' } }
+                        }
+                    });
                 }
-            }
-        });
-        
-        // 创建及格率图表
-        var passCtx = document.getElementById('passRatesChart').getContext('2d');
-        var passChart = new Chart(passCtx, {
-            type: 'pie',
-            data: {
-                labels: subjects,
-                datasets: [{
-                    label: '及格率',
-                    data: passRates,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.6)',
-                        'rgba(54, 162, 235, 0.6)',
-                        'rgba(255, 206, 86, 0.6)',
-                        'rgba(75, 192, 192, 0.6)',
-                        'rgba(153, 102, 255, 0.6)',
-                        'rgba(255, 159, 64, 0.6)',
-                        'rgba(199, 199, 199, 0.6)',
-                        'rgba(83, 102, 255, 0.6)',
-                        'rgba(40, 159, 64, 0.6)',
-                        'rgba(210, 199, 199, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(199, 199, 199, 1)',
-                        'rgba(83, 102, 255, 1)',
-                        'rgba(40, 159, 64, 1)',
-                        'rgba(210, 199, 199, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '各科目及格率对比'
-                    },
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.raw + '%';
+
+                // --- 创建第二个图表：及格率对比 ---
+                var passCanvas = document.getElementById('passRatesChart');
+                if (passCanvas) {
+                    var passCtx = passCanvas.getContext('2d');
+                    new Chart(passCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: subjects,
+                            datasets: [{
+                                label: '及格率(%)', data: passRates,
+                                backgroundColor: [
+                                    'rgba(75, 192, 192, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)',
+                                    'rgba(255, 99, 132, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)'
+                                ].slice(0, subjects.length) // 确保颜色数量与科目数量匹配
+                            }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: {
+                                title: { display: true, text: '各科目及格率对比' },
+                                legend: { position: 'right' },
+                                tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw + '%' } }
                             }
                         }
-                    }
+                    });
                 }
             }
+        } catch (e) {
+            console.error("创建图表时发生错误:", e);
+        }
+
+        // 导出按钮JS逻辑
+        $('#exportBtn').on('click', function(e) {
+            e.preventDefault();
+            var subjectName = /*[[${searchKeyword}]]*/ '';
+            var testNo = /*[[${selectedTerm}]]*/ '';
+            var url = '/grade/export/subjectStatistics?';
+            var params = [];
+            if (subjectName) { params.push('subjectName=' + encodeURIComponent(subjectName)); }
+            if (testNo) { params.push('testNo=' + encodeURIComponent(testNo)); }
+            window.location.href = url + params.join('&');
         });
         /*]]>*/
     </script>
 </body>
-</html> 
+</html>

@@ -124,11 +124,11 @@
 
         // --- 绑定事件 ---
         $('#usernameInput').on('blur', function() {
-            validateField($(this), $('#usernameError'), '/check/username', 'username', /^[a-zA-Z0-9_]{4,16}$/, '用户名应为4-16位字符');
+            validateField($(this), $('#usernameError'), '/check/username', 'username', /^[a-zA-Z0-9_]{2,16}$/, '用户名应为2-16位字符');
         });
 
         $('#schNumberInput').on('blur', function() {
-            validateField($(this), $('#schNumberError'), '/check/schNumber', 'schNumber', /^[0-9]{8,12}$/, '学号/工号应为8-12位数字');
+            validateField($(this), $('#schNumberError'), '/check/schNumber', 'schNumber', /^[0-9]{6,10}$/, '学号/工号应为6-10位数字');
         });
 
         $('#mailInput').on('blur', function() {
@@ -143,7 +143,7 @@
 
         passwordInput.on('blur', function() {
             const value = $(this).val();
-            if (value && !/^.{6,16}$/.test(value)) {
+            if (value && !/^.{6,10}$/.test(value)) {
                 passwordFormatError.show();
                 $(this).addClass('input-error');
             } else {
