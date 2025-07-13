@@ -87,8 +87,6 @@
     </div>
     <div class="row">
         <div class="card">
-            <!-- ==================== 关键修改 2: 修改HTML结构 ==================== -->
-            <!-- 使用新的 card-header 结构来包裹标题和按钮 -->
             <div class="card-header">
                 <h3>查询结果</h3>
                 <a th:href="@{/grade/classStatistics}" class="action-button">班级成绩统计分析</a>
@@ -109,7 +107,6 @@
                 </thead>
                 <tbody>
                 <tr th:each="grade:${grades}">
-                    <!-- 使用属性访问，更符合Thymeleaf规范 -->
                     <td th:text="${grade.schNumber}"></td>
                     <td th:text="${grade.subName}"></td>
                     <td th:text="${grade.results}"></td>
@@ -122,14 +119,6 @@
             </table>
         </div>
     </div>
-
-    <!-- ==================== 关键修改 3: 删除底部的按钮区域 ==================== -->
-    <!--
-    <div class="page-actions">
-        <a th:href="@{/grade/classStatistics}" class="btn btn-primary">班级成绩统计分析</a>
-    </div>
-    -->
-    <!-- ================================================================= -->
 </div>
 </body>
 </html>
