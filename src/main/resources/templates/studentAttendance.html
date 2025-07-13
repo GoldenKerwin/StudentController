@@ -71,13 +71,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- 图表卡片 -->
         <div class="card-common chart-container">
             <canvas id="attendanceChart"></canvas>
         </div>
-
-        <!-- 考勤记录列表卡片 -->
         <div class="card-common attendance-list">
             <h2>考勤记录列表</h2>
             <table>
@@ -103,8 +99,6 @@
             </table>
         </div>
     </th:block>
-
-    <!-- 如果没有数据，显示提示信息 -->
     <div th:if="${statistics == null || statistics.total == 0}" class="card-common empty-data">
         <h2>暂无考勤记录</h2>
         <p>该学生目前还没有任何考勤记录。</p>
@@ -118,7 +112,6 @@
 </div>
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
     var statistics = /*[[${statistics}]]*/ {};
 
     if (statistics && statistics.total > 0) {
@@ -166,7 +159,6 @@
             }
         });
     }
-    /*]]>*/
 </script>
 </body>
 </html>

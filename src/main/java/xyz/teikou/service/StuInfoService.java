@@ -4,10 +4,6 @@ import xyz.teikou.entity.StuInfo;
 
 import java.util.List;
 
-/**
- * Creat by TeiKou
- * 2019/10/11 14:12
- */
 public interface StuInfoService {
     public void addInfo(StuInfo stuInfo);
 

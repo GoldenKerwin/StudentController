@@ -4,11 +4,6 @@ import xyz.teikou.entity.Grade;
 
 import java.util.List;
 import java.util.Map;
-
-/**
- * Creat by TeiKou
- * 2019/10/10 15:11
- */
 public interface GradeService {
 
     public void addGrade(Grade grade);

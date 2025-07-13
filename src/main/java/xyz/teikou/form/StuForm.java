@@ -4,11 +4,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-
-/**
- * Creat by TeiKou
- * 2019/10/11 14:18
- */
 @Data
 public class StuForm {
     @NotBlank(message = "学号不能为空")

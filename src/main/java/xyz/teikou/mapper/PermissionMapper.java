@@ -7,10 +7,6 @@ import org.apache.ibatis.annotations.Select;
 import xyz.teikou.entity.Permission;
 
 import java.util.List;
-
-/**
- * 权限Mapper接口
- */
 @Mapper
 public interface PermissionMapper extends BaseMapper<Permission> {
     

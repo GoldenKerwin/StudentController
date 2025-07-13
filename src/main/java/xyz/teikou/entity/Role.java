@@ -8,15 +8,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
-
-/**
- * <p>
- * 角色实体类
- * </p>
- *
- * @author teikou
- * @since 2019-10-09
- */
 @Data
 @TableName("role")
 public class Role implements Serializable {

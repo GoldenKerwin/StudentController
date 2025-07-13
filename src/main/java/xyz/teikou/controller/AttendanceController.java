@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +19,7 @@ import xyz.teikou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -276,8 +273,7 @@ public class AttendanceController {
     }
 
     /**
-     * ==================== 关键修改 2: 新增此方法 ====================
-     * 新增：跳转到学生考勤查询的搜索页面
+     * 跳转到学生考勤查询的搜索页面
      */
     @RequestMapping("/studentSearch")
     @RequiresPermissions("teacher:attendance:manage")

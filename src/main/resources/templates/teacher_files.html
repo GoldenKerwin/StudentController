@@ -100,7 +100,6 @@
 
 <script>
     $(document).ready(function() {
-        // 通用的 AJAX 上传处理函数
         function handleAjaxUpload(formId) {
             $('#' + formId).on('submit', function(event) {
                 event.preventDefault();
@@ -123,8 +122,6 @@
                 });
             });
         }
-
-        // 为两个上传表单绑定事件
         handleAjaxUpload('pptUploadForm');
         handleAjaxUpload('gradedHomeworkUploadForm');
     });

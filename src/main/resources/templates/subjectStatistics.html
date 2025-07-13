@@ -6,7 +6,6 @@
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
-    <!-- 样式部分保持不变 -->
     <style>
         .search-form { background-color: #fff; border-radius: var(--apple-radius); box-shadow: var(--apple-shadow); padding: 24px; margin: 24px auto; max-width: 1100px; }
         .search-form form { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
@@ -34,8 +33,6 @@
 <body>
 <div class="container">
     <h3>全校科目成绩统计分析</h3>
-
-    <!-- 搜索、筛选表单 -->
     <div class="search-form">
         <form id="filterForm" th:action="@{/grade/subjectStatistics}" method="get">
             <div class="form-group">
@@ -55,7 +52,6 @@
     </div>
 
     <th:block th:if="${subjectStats != null and !subjectStats.isEmpty()}">
-        <!-- 表格卡片 -->
         <div class="statistics-card">
             <div class="card-header">
                 <h2>科目成绩总览</h2>
@@ -81,47 +77,35 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- 图表容器 -->
         <div class="charts-wrapper">
             <div class="chart-container"><canvas id="averagesChart"></canvas></div>
             <div class="chart-container"><canvas id="passRatesChart"></canvas></div>
         </div>
     </th:block>
-
-    <!-- 空数据提示 -->
     <div th:if="${subjectStats == null or subjectStats.isEmpty()}" class="statistics-card empty-data">
         <h2>暂无科目成绩数据</h2>
         <p th:if="${searchKeyword == null and selectedTerm == null}">系统中还没有任何成绩记录可供统计分析。</p>
         <p th:if="${searchKeyword != null or selectedTerm != null}">未找到符合筛选条件的科目成绩。</p>
     </div>
-
-    <!-- 返回按钮 -->
     <div class="button-container">
         <a th:href="@{/index}" class="button">返回首页</a>
     </div>
 
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        // 使用 try-catch 包裹以增强健壮性
         try {
             var subjectStats = /*[[${subjectStats}]]*/ [];
-
-            // 在浏览器控制台打印数据，便于调试
             console.log("从后端接收到的科目统计数据:", subjectStats);
 
             if (subjectStats && subjectStats.length > 0) {
                 var subjects = [], averages = [], passRates = [], maxScores = [], minScores = [];
 
                 subjectStats.forEach(s => {
-                    subjects.push(s.subject || '未知科目'); // 使用默认值防止 null 或 undefined
+                    subjects.push(s.subject || '未知科目');
                     averages.push(s.average || 0);
                     passRates.push(s.passRate || 0);
                     maxScores.push(s.max || 0);
                     minScores.push(s.min || 0);
                 });
-
-                // --- 创建第一个图表：成绩分数对比 ---
                 var avgCanvas = document.getElementById('averagesChart');
                 if (avgCanvas) {
                     var avgCtx = avgCanvas.getContext('2d');
@@ -142,8 +126,6 @@
                         }
                     });
                 }
-
-                // --- 创建第二个图表：及格率对比 ---
                 var passCanvas = document.getElementById('passRatesChart');
                 if (passCanvas) {
                     var passCtx = passCanvas.getContext('2d');
@@ -173,8 +155,6 @@
         } catch (e) {
             console.error("创建图表时发生错误:", e);
         }
-
-        // 导出按钮JS逻辑
         $('#exportBtn').on('click', function(e) {
             e.preventDefault();
             var subjectName = /*[[${searchKeyword}]]*/ '';

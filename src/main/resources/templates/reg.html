@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/css/apple-style.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
     <style>
-        /* 通用错误样式 */
         .input-error { border: 1px solid red !important; }
         .error-message { color: red; font-size: 0.9em; margin-top: 5px; display: none; }
     </style>
@@ -92,8 +91,6 @@
 
 <script>
     $(document).ready(function() {
-
-        // --- 通用校验函数 ---
         function validateField(inputEl, errorEl, checkUrl, paramName, clientRegex, clientErrorMsg) {
             const value = inputEl.val().trim();
             errorEl.hide();
@@ -121,8 +118,6 @@
                 });
             }
         }
-
-        // --- 绑定事件 ---
         $('#usernameInput').on('blur', function() {
             validateField($(this), $('#usernameError'), '/check/username', 'username', /^[a-zA-Z0-9_]{2,16}$/, '用户名应为2-16位字符');
         });
@@ -134,8 +129,6 @@
         $('#mailInput').on('blur', function() {
             validateField($(this), $('#mailError'), '/check/mail', 'mail', /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, '邮箱格式不正确');
         });
-
-        // --- 密码的特殊校验逻辑 ---
         const passwordInput = $('#passwordInput');
         const confirmPasswordInput = $('#confirmPasswordInput');
         const passwordFormatError = $('#passwordFormatError');
@@ -148,7 +141,6 @@
                 $(this).addClass('input-error');
             } else {
                 passwordFormatError.hide();
-                // 只有当确认密码框也正确时才移除样式
                 if (!passwordMatchError.is(':visible')) {
                     $(this).removeClass('input-error');
                 }

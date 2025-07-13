@@ -46,8 +46,6 @@
     <h3>我的考勤记录</h3>
 
     <div th:if="${statistics != null && statistics.total > 0}">
-
-        <!-- 卡片1: 考勤统计概况 -->
         <div class="card-common">
             <h2>考勤统计概况</h2>
             <div class="stats-grid">
@@ -66,13 +64,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- 卡片2: 考勤状态分布图 -->
         <div class="card-common chart-container">
             <canvas id="attendanceChart"></canvas>
         </div>
-
-        <!-- 卡片3: 考勤记录列表 -->
         <div class="card-common attendance-list">
             <h2>考勤记录列表</h2>
             <table>
@@ -101,17 +95,9 @@
         <p>目前还没有任何考勤记录，请等待教师录入。</p>
     </div>
 
-    <!-- ==================== 关键修改：已删除包含“返回首页”按钮的 div ==================== -->
-
-    <!-- 原来的代码块已被移除 -->
-
-    <!-- ==================================================================================== -->
-
 </div>
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    // JavaScript 部分保持不变
     var statistics = /*[[${statistics}]]*/ {};
     if (statistics && statistics.total > 0) {
         var ctx = document.getElementById('attendanceChart').getContext('2d');
@@ -145,7 +131,6 @@
             }
         });
     }
-    /*]]>*/
 </script>
 </body>
 </html>

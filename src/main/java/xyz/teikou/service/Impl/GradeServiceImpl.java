@@ -197,14 +197,6 @@ public class GradeServiceImpl implements GradeService {
 
         return statistics;
     }
-
-    /**
-     * ==================== 核心修改 1: 改造此方法以支持筛选和排序 ====================
-     * 注意：您需要同步修改 GradeService 接口中的方法签名。
-     */
-    /**
-     * ==================== 核心修改 1: 改造此方法以支持筛选和排序 ====================
-     */
     @Override
     public List<Map<String, Object>> getSubjectAverages(String subjectName, String testNo, String sortField, String sortOrder) {
         QueryWrapper<Grade> queryWrapper = new QueryWrapper<>();
@@ -246,8 +238,6 @@ public class GradeServiceImpl implements GradeService {
 
             result.add(subjectStat);
         }
-
-        // --- 排序逻辑的修正 ---
         if (sortField != null && !sortField.isEmpty()) {
             Comparator<Map<String, Object>> comparator;
 
@@ -279,11 +269,6 @@ public class GradeServiceImpl implements GradeService {
 
         return result;
     }
-
-    /**
-     * ==================== 核心修改 2: 新增此方法用于获取学期列表 ====================
-     * 注意：您需要同步修改 GradeService 接口中的方法签名。
-     */
     @Override
     public List<String> getDistinctTerms() {
         QueryWrapper<Grade> queryWrapper = new QueryWrapper<>();

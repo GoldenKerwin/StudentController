@@ -15,10 +15,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Set;
-
-/**
- * 全局异常处理器，用于捕获数据校验异常
- */
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {

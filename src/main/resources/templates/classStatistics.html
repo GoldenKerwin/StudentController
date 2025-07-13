@@ -5,7 +5,6 @@
     <title>班级成绩统计</title>
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <!-- 1. 引入与考勤统计页面一致的美化样式 -->
     <style>
         .search-form {
             background-color: #fff;
@@ -65,8 +64,6 @@
 <body>
 <div class="container">
     <h3>班级成绩统计</h3>
-
-    <!-- 2. 使用美化后的搜索框 -->
     <div class="search-form">
         <form th:action="@{/grade/classStatistics}" method="get">
             <label for="className">班级名称:</label>
@@ -74,19 +71,12 @@
             <button type="submit" class="btn btn-primary">查询</button>
         </form>
     </div>
-
-    <!-- 3. 将所有结果都包裹在一个 th:if 中 -->
     <div th:if="${className != null}">
-
-        <!-- 如果查询了但没有数据，显示提示信息 -->
         <div th:if="${statistics == null or statistics.studentCount == 0}" class="statistics-card empty-data">
             <h2>未找到班级成绩数据</h2>
             <p>没有找到"<span th:text="${className}"></span>"班级的成绩记录，请确认班级名称是否正确或该班级是否有成绩。</p>
         </div>
-
-        <!-- 只有在有数据时才显示下面的内容 -->
         <th:block th:if="${statistics != null and statistics.studentCount > 0}">
-            <!-- 卡片1: 成绩概况 -->
             <div class="statistics-card">
                 <h2 th:text="${className + ' 班级成绩概况'}"></h2>
                 <div class="stats-grid">
@@ -102,13 +92,9 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 卡片2: 图表 -->
             <div th:if="${#maps.containsKey(statistics, 'subjects') and !#lists.isEmpty(statistics.subjects)}" class="chart-container">
                 <canvas id="subjectsChart"></canvas>
             </div>
-
-            <!-- 卡片3: 各科目成绩分析 -->
             <div th:if="${#maps.containsKey(statistics, 'subjects') and !#lists.isEmpty(statistics.subjects)}" class="statistics-card">
                 <h2>各科目成绩分析</h2>
                 <table>
@@ -130,8 +116,6 @@
     </div>
 
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        // JavaScript 部分保持不变
         var statistics = /*[[${statistics}]]*/ null;
         var subjects = [];
         if (statistics && statistics.subjects) {

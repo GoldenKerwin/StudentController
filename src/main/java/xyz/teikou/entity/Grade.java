@@ -7,15 +7,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
-
-/**
- * <p>
- * 
- * </p>
- *
- * @author teikou
- * @since 2019-10-09
- */
 @Data
 @TableName("grade")
 public class Grade implements Serializable {

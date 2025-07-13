@@ -175,13 +175,10 @@ public class AttendanceServiceImpl implements AttendanceService {
         logger.info("Status counts size: {}", statusCounts != null ? statusCounts.size() : 0);
         
         if (statusCounts != null) {
-            // 转换状态统计数据，确保字段名一致
             List<Map<String, Object>> normalizedStatusCounts = new ArrayList<>();
             
             for (Map<String, Object> statusCount : statusCounts) {
                 logger.debug("Status count entry: {}", statusCount);
-                
-                // 创建新的规范化Map
                 Map<String, Object> normalizedMap = new HashMap<>();
                 
                 // 处理status字段

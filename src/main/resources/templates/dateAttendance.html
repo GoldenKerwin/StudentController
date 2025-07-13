@@ -172,27 +172,17 @@
         <a th:href="@{/index}" class="button">返回首页</a>
     </div>
 </div>
-
-<!-- ==================== 关键修改：恢复并修正JS逻辑 ==================== -->
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    // 这段脚本只会在页面首次加载时起作用
     document.addEventListener('DOMContentLoaded', function() {
         var dateInput = document.getElementById('date');
-
-        // 只有当输入框的值为空时 (即首次加载，后端传来 queryDate=null)
         if (!dateInput.value) {
             var today = new Date();
             var yyyy = today.getFullYear();
             var mm = String(today.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以+1
             var dd = String(today.getDate()).padStart(2, '0');
-
-            // 拼接成 'yyyy-MM-dd' 格式
             dateInput.value = yyyy + '-' + mm + '-' + dd;
         }
     });
-    /*]]>*/
 </script>
-<!-- ==================================================================== -->
 </body>
 </html>

@@ -4,10 +4,6 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 
-/**
- * Creat by TeiKou
- * 2019/10/9 15:33
- */
 @Data
 public class UserForm {
     @NotBlank(message = "用户名不能为空")

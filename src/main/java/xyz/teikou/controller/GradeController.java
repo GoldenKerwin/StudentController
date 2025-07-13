@@ -69,12 +69,9 @@ public class GradeController {
     public ModelAndView insert() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("addGrade");
-
-        // ==================== 关键修改在这里 ====================
-        // 调用新方法 findAllStudents()，只获取学生列表
         List<User> allStudents = userService.findAllStudents();
         mv.addObject("schList", allStudents);
-        // ========================================================
+
 
         return mv;
     }
@@ -88,12 +85,8 @@ public class GradeController {
         ModelAndView mv = new ModelAndView();
         if (bindingResult.hasErrors()) {
             mv.setViewName("addGrade");
-
-            // ==================== 这里的逻辑也需要同步修改 ====================
-            // 如果表单验证失败返回，也要确保 schList 里只有学生
             List<User> allStudents = userService.findAllStudents();
             mv.addObject("schList", allStudents);
-            // =============================================================
 
             mv.addObject("info", "表单验证失败，请检查输入");
             return mv;
@@ -104,9 +97,6 @@ public class GradeController {
         mv.setViewName("success");
         return mv;
     }
-
-    // --- 后面的方法保持不变 ---
-
     /**
      * 教师查询所有成绩
      */
@@ -220,8 +210,6 @@ public class GradeController {
             @RequestParam(value = "sortOrder", required = false, defaultValue = "asc") String sortOrder) {
 
         ModelAndView mv = new ModelAndView("subjectStatistics");
-
-        // 调用改造后的 Service 方法
         List<Map<String, Object>> subjectStats = gradeService.getSubjectAverages(subjectName, testNo, sortField, sortOrder);
         // 获取所有学期用于下拉框
         List<String> distinctTerms = gradeService.getDistinctTerms();
@@ -239,7 +227,7 @@ public class GradeController {
     }
 
     /**
-     * ==================== 核心修改 2: 新增此方法用于导出数据 ====================
+     * 导出数据
      */
     @GetMapping("/export/subjectStatistics")
     @RequiresRoles("2")
@@ -254,8 +242,6 @@ public class GradeController {
 
         String fileName = "subject_statistics_export.csv";
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
-
-        // 查询数据时，不应用排序，通常导出原始顺序即可
         List<Map<String, Object>> subjectStats = gradeService.getSubjectAverages(subjectName, term, null, null);
 
         try (PrintWriter writer = response.getWriter()) {

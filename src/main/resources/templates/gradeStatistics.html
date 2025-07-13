@@ -5,7 +5,6 @@
     <title>我的成绩统计</title>
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <!-- 1. 引入美化样式 -->
     <style>
         .statistics-card {
             background-color: #fff; border-radius: var(--apple-radius);
@@ -41,10 +40,8 @@
 <body>
 <div class="container">
     <h3>我的成绩统计分析</h3>
-
-    <!-- 2. 使用新的卡片式布局 -->
     <th:block th:if="${statistics != null and statistics.totalSubjects > 0}">
-        <!-- 卡片1: 成绩概况 -->
+        <!--成绩概况 -->
         <div class="statistics-card">
             <h2>个人成绩概况</h2>
             <div class="stats-grid">
@@ -62,12 +59,12 @@
             </div>
         </div>
 
-        <!-- 卡片2: 图表 -->
+        <!--图表 -->
         <div class="chart-container">
             <canvas id="gradesChart"></canvas>
         </div>
 
-        <!-- 卡片3: 成绩详情表格 -->
+        <!--成绩详情表格 -->
         <div class="statistics-card">
             <h2>成绩详情</h2>
             <table>
@@ -89,8 +86,6 @@
     </div>
 
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        // JavaScript 部分保持不变
         var statistics = /*[[${statistics}]]*/ null;
         if (statistics && statistics.gradesList) {
             var grades = statistics.gradesList;
@@ -122,7 +117,6 @@
                 });
             }
         }
-        /*]]>*/
     </script>
 </body>
 </html>

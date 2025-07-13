@@ -7,12 +7,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
-
-/**
- * <p>
- * 权限实体类
- * </p>
- */
 @Data
 @TableName("permission")
 public class Permission implements Serializable {

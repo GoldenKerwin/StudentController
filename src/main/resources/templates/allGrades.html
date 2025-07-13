@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>查询所有学生成绩</title>
     <link rel="stylesheet" href="/css/apple-style.css">
-    <!-- ==================== 关键修改 1: 添加新样式 ==================== -->
     <style>
         .card-header {
             display: flex;
-            justify-content: space-between; /* 让标题和按钮分别靠在两边 */
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px; /* 标题和表格之间的间距 */
+            margin-bottom: 20px;
         }
         .card-header h3 {
-            margin: 0; /* 移除标题的默认边距 */
+            margin: 0;
             font-size: 22px;
         }
         .action-button {
@@ -24,7 +23,7 @@
             padding: 8px 16px;
             border-radius: var(--apple-radius);
             cursor: pointer;
-            text-decoration: none; /* 去掉链接下划线 */
+            text-decoration: none;
             font-size: 14px;
             font-weight: 500;
             transition: background-color 0.2s ease;
@@ -33,7 +32,6 @@
             background-color: var(--apple-blue-hover);
         }
     </style>
-    <!-- ========================================================== -->
 </head>
 <body>
 <div class="header">
@@ -91,8 +89,6 @@
                 <h3>查询结果</h3>
                 <a th:href="@{/grade/classStatistics}" class="action-button">班级成绩统计分析</a>
             </div>
-            <!-- ================================================================= -->
-
             <div th:if="${errorMsg != null}" class="alert alert-warning" th:text="${errorMsg}"></div>
             <div th:if="${grades != null && grades.size() == 0}" class="alert alert-info">暂无成绩数据</div>
             <table class="table" th:if="${grades != null && grades.size() > 0}">

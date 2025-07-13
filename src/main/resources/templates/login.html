@@ -34,24 +34,15 @@
         </div>
     </div>
 </div>
-
-<!-- 添加 JavaScript 脚本用于处理跳转 -->
 <script th:inline="javascript">
-    /*<![CDATA[*/
     $(document).ready(function() {
-        // 使用 Thymeleaf 内联语法获取后端传递的标志和用户名
-        var shouldRedirect = /*[[${redirectToRegister}]]*/ false; // 默认值为 false
-        var usernameToPass = /*[[${username}]]*/ null;       // 默认值为 null
-
-        // 如果标志为 true，并且用户名不为空，则执行跳转
+        var shouldRedirect = /*[[${redirectToRegister}]]*/ false;
+        var usernameToPass = /*[[${username}]]*/ null;
         if (shouldRedirect && usernameToPass) {
-            // 构建带参数的 URL
             var registerUrl = '/reg?username=' + encodeURIComponent(usernameToPass);
-            // 执行页面跳转
             window.location.href = registerUrl;
         }
     });
-    /*]]>*/
 </script>
 
 </body>

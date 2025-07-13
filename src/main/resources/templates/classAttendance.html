@@ -6,7 +6,6 @@
     <link rel="stylesheet" th:href="@{/css/apple-style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <style>
-        /* 您提供的所有样式保持不变 */
         .search-form {
             background-color: #fff;
             border-radius: var(--apple-radius);
@@ -37,21 +36,16 @@
         }
         .stats-grid { display: flex; justify-content: space-between; flex-wrap: wrap; }
         .stat-item { flex: 1; min-width: 200px; padding: 16px; }
-
-        /* ==================== 关键修改 1: 只修改图表容器样式 ==================== */
         .chart-container {
             background-color: #fff !important;
             border-radius: var(--apple-radius);
             box-shadow: var(--apple-shadow);
             padding: 24px !important;
             margin-bottom: 24px !important;
-            /* 保留您原有的内联样式所对应的属性，并添加 position: relative */
             position: relative;
             height: 40vh;
             margin: 20px auto;
         }
-        /* ===================================================================== */
-
         .button-container { margin-top: 20px; text-align: center; }
         .button {
             display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: 500;
@@ -119,8 +113,6 @@
         <h2>未找到班级考勤数据</h2>
         <p>没有找到"<span th:text="${className}"></span>"班级的考勤记录，请确认班级名称是否正确或者该班级是否有考勤记录。</p>
     </div>
-
-    <!-- HTML 结构保持不变，但其样式已在 <style> 中被修改 -->
     <div th:if="${className != null && statistics != null && statistics.total > 0}" class="chart-container">
         <canvas id="attendanceChart"></canvas>
     </div>
@@ -150,7 +142,6 @@
 </div>
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
     var statistics = /*[[${statistics != null ? statistics : {}}]]*/ {};
 
     if (statistics && statistics.total > 0) {
@@ -183,7 +174,6 @@
             },
             options: {
                 responsive: true,
-                // 关键修改 3: 确保 maintainAspectRatio 为 false
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'right' },
@@ -204,7 +194,6 @@
             }
         });
     }
-    /*]]>*/
 </script>
 </body>
 </html>

@@ -8,10 +8,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
-
-/**
- * 处理Spring Boot默认错误页面的控制器
- */
 @Slf4j
 @Controller
 public class CustomErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
