@@ -14,7 +14,7 @@ public class FileUpload implements Serializable {
     private String storedFilename;
     private String filePath;
     private Long fileSize;
-    private String fileType; // "PPT", "HOMEWORK", "GRADED_HOMEWORK"
+    private String fileType;
     private Integer uploaderId;
     private Integer studentId;
     private String courseName;
